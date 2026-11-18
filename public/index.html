@@ -1,0 +1,493 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Data Jeopardy Live</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap">
+<style>
+@font-face{font-family:"KGSummer Sunshine";src:url("fonts/KGSummerSunshine.woff") format("woff");font-weight:400;font-style:normal;font-display:swap}
+/* Layout: one column app. Teacher view is a projector board with a fixed top-3 footer; student view is a phone-first answer pad.
+   BRHS Brand on white: Carolina Blue, Clemson Orange, Determined Gray. KG Summer Sunshine display, Poppins UI, Arial body. */
+:root{
+  --CarolinaBlue:#4b9cd3; --DeterminedGray:#cbc4bc; --ClemsonOrange:#f56600;
+  --paper:#ffffff; --ink:#1f2a33; --muted:#5f5953; --line:var(--DeterminedGray); --tint:#f5f3f0;
+  --blue:var(--CarolinaBlue); --blue-ink:#22679a; --blue-soft:#eaf4fb;
+  --orange:var(--ClemsonOrange); --orange-ink:#a94700; --orange-soft:#fff0e5;
+  --f-display:"KGSummer Sunshine","Comic Sans MS","Chalkboard SE",Arial,sans-serif;
+  --f-ui:"Poppins",Arial,Helvetica,sans-serif;
+  --f-body:Arial,Helvetica,sans-serif;
+  color-scheme:light;
+}
+html,body{background:var(--paper);color:var(--ink);margin:0}
+body{font-family:var(--f-body);font-size:16px;line-height:1.45;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:3px solid var(--blue-ink);outline-offset:2px}
+.wrap{max-width:1180px;margin:0 auto;padding-block:16px 110px;display:flex;flex-direction:column;gap:16px}
+.wrap.narrow{max-width:620px}
+header.top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;border-bottom:3px solid var(--blue);padding-bottom:10px}
+h1{font-family:var(--f-display);font-weight:400;font-size:clamp(1.6rem,4.5vw,2.8rem);line-height:1.1;margin:0 auto 0 0}
+h1 span{color:var(--blue-ink)}
+h2{font-family:var(--f-display);font-weight:400;font-size:clamp(1.5rem,4vw,2.2rem);margin:0;line-height:1.15}
+.eyebrow{font-family:var(--f-ui);font-weight:700;font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--orange-ink)}
+.note{font-size:.92rem;color:var(--muted);margin:0}
+.err{color:var(--orange-ink);font-weight:700;font-size:.92rem;margin:0;min-height:1.2em}
+.btn{border:0;border-radius:10px;background:var(--blue);color:var(--ink);font-family:var(--f-ui);font-weight:700;letter-spacing:.05em;padding:11px 18px;font-size:.95rem}
+.btn:hover{background:#3a8bc2}
+.btn.ghost{background:var(--paper);color:var(--blue-ink);border:2px solid var(--blue)}
+.btn.ghost:hover{background:var(--blue-soft)}
+.btn.dark{background:var(--ink);color:#fff}
+.btn.dark:hover{background:#34434f}
+.btn.warn{background:var(--orange);color:var(--ink)}
+.btn.big{font-size:1.1rem;padding:14px 26px}
+.btn:disabled{opacity:.45;cursor:default}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:5px 12px;font-family:var(--f-ui);font-weight:700;font-size:.85rem;font-variant-numeric:tabular-nums;background:var(--paper)}
+.chip.code{border-color:var(--blue);color:var(--blue-ink);letter-spacing:.12em}
+
+/* home */
+.modes{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.mode{border:2px solid var(--line);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:10px;text-align:left;background:var(--paper)}
+.mode:hover:not(:disabled){border-color:var(--blue);background:var(--blue-soft)}
+.mode h3{font-family:var(--f-ui);font-weight:700;font-size:1.15rem;margin:0;letter-spacing:.02em}
+.mode p{margin:0;color:var(--muted);font-size:.95rem}
+.mode:disabled{opacity:.5;cursor:default}
+.mode .tag{align-self:flex-start;font-family:var(--f-ui);font-weight:700;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;border-radius:999px;padding:3px 10px;background:var(--blue-soft);color:var(--blue-ink)}
+.pick{display:flex;gap:8px;flex-wrap:wrap}
+.pick button{border:2px solid var(--line);background:var(--paper);border-radius:10px;padding:10px 16px;font-family:var(--f-ui);font-weight:700}
+.pick button.on{border-color:var(--blue);background:var(--blue-soft);color:var(--blue-ink)}
+.panel{border:1px solid var(--line);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:12px}
+label.f{display:flex;flex-direction:column;gap:6px;font-family:var(--f-ui);font-weight:700;font-size:.92rem}
+.inp{font:inherit;font-size:1.15rem;padding:11px 14px;border:2px solid var(--line);border-radius:10px;color:var(--ink);background:var(--paper);width:100%}
+.inp:focus{border-color:var(--blue);outline:none}
+.inp.code{text-transform:uppercase;letter-spacing:.3em;font-family:var(--f-ui);font-weight:700;text-align:center;font-size:1.6rem}
+
+/* lobby */
+.joinbig{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;border:3px solid var(--blue);border-radius:18px;padding:22px 16px}
+.joinbig .code{font-family:var(--f-display);font-size:clamp(4rem,14vw,8rem);line-height:1;letter-spacing:.12em;color:var(--ink)}
+.joinbig .url{font-family:var(--f-ui);font-weight:700;font-size:clamp(1rem,2.4vw,1.4rem);color:var(--blue-ink);word-break:break-all}
+.names{display:flex;flex-wrap:wrap;gap:8px}
+.name{display:inline-flex;align-items:center;gap:6px;border:2px solid var(--blue);background:var(--blue-soft);border-radius:999px;padding:6px 6px 6px 14px;font-family:var(--f-ui);font-weight:700}
+.name.off{border-color:var(--line);background:var(--paper);color:var(--muted)}
+.x{border:0;background:none;width:26px;height:26px;border-radius:50%;color:var(--muted);font-size:1.1rem;line-height:1}
+.x:hover{background:var(--orange-soft);color:var(--orange-ink)}
+
+/* board */
+.board{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.cat{background:var(--ink);color:#fff;border-radius:10px;padding:10px 6px;min-height:60px;display:grid;place-items:center;text-align:center;font-family:var(--f-ui);font-weight:700;font-size:clamp(.72rem,1.6vw,1rem);letter-spacing:.04em;line-height:1.2;text-wrap:balance}
+.tile{border:0;border-radius:10px;background:var(--blue);min-height:clamp(54px,9.5vh,92px);display:grid;place-items:center;font-family:var(--f-display);font-size:clamp(1.4rem,4.2vw,2.8rem);color:var(--ink);transition:transform .12s ease,background .12s}
+.tile:hover:not(:disabled){background:#3a8bc2;transform:translateY(-2px)}
+.tile:disabled{background:var(--paper);border:2px dashed var(--line);color:var(--line);font-size:clamp(1rem,2.6vw,1.6rem);cursor:default}
+
+/* clue */
+.chead{display:flex;align-items:center;gap:10px;flex-wrap:wrap;border-bottom:3px solid var(--blue);padding-bottom:10px}
+.chead .cname{font-family:var(--f-ui);font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-size:.88rem;color:var(--blue-ink);margin-right:auto}
+.chead .val{font-family:var(--f-display);font-size:2rem;line-height:1}
+.ddb{font-family:var(--f-ui);font-weight:700;letter-spacing:.05em;background:var(--orange);color:var(--ink);border-radius:999px;padding:4px 12px;font-size:.82rem}
+.clue{font-size:clamp(1.25rem,2.8vw,2.05rem);line-height:1.35;margin:0;max-width:44ch;text-wrap:pretty}
+.clue b{font-family:var(--f-ui)}
+.pl .clue{font-size:1.15rem}
+.fig{display:flex;justify-content:center;overflow-x:auto}
+.fig svg{width:100%;max-width:660px;height:auto}
+.opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.pl .opts{grid-template-columns:1fr}
+.opt{position:relative;overflow:hidden;border:2px solid var(--line);border-radius:12px;background:var(--paper);padding:12px 14px;display:flex;gap:12px;align-items:center;text-align:left;font-size:clamp(1rem,2vw,1.35rem);min-height:60px}
+.opt .k{flex:0 0 auto;width:34px;height:34px;border-radius:8px;background:var(--ink);color:#fff;display:grid;place-items:center;font-family:var(--f-ui);font-weight:700;font-size:1rem}
+.opt .t{position:relative;z-index:1;min-width:0;flex:1}
+.opt .n{position:relative;z-index:1;font-family:var(--f-ui);font-weight:700;font-variant-numeric:tabular-nums;color:var(--muted)}
+.opt .fill{position:absolute;inset:0 auto 0 0;background:var(--tint);z-index:0}
+.opt.sel{border-color:var(--blue);background:var(--blue-soft)}
+.opt.sel .k{background:var(--blue-ink)}
+.opt.right{border-color:var(--blue);border-width:3px}
+.opt.right .fill{background:var(--blue-soft)}
+.opt.right .k{background:var(--blue);color:var(--ink)}
+.opt.wrong{border-color:var(--orange);background:var(--orange-soft)}
+.opt.dim{opacity:.55}
+button.opt:hover:not(:disabled){border-color:var(--blue)}
+button.opt:disabled{cursor:default}
+.timer{display:flex;align-items:center;gap:12px}
+.tbar{flex:1;height:12px;background:var(--tint);border-radius:6px;overflow:hidden}
+.tbar i{display:block;height:100%;background:var(--blue)}
+.tbar.low i{background:var(--orange)}
+.tnum{font-family:var(--f-display);font-size:1.8rem;min-width:2.4em;text-align:right;font-variant-numeric:tabular-nums}
+.ans{border-left:6px solid var(--blue);background:var(--blue-soft);border-radius:10px;padding:12px 16px;font-size:clamp(1rem,1.9vw,1.25rem)}
+.result{border-radius:14px;padding:16px;text-align:center;display:flex;flex-direction:column;gap:4px}
+.result.ok{background:var(--blue-soft);border:2px solid var(--blue)}
+.result.no{background:var(--orange-soft);border:2px solid var(--orange)}
+.result.none{background:var(--tint);border:2px solid var(--line)}
+.result b{font-family:var(--f-display);font-weight:400;font-size:2rem}
+.big-stat{font-family:var(--f-display);font-size:clamp(2.4rem,9vw,3.6rem);line-height:1}
+
+/* player header */
+.me{display:flex;align-items:center;gap:10px;flex-wrap:wrap;border-bottom:3px solid var(--blue);padding-bottom:10px}
+.me .nm{font-family:var(--f-display);font-size:1.6rem;margin-right:auto}
+.wait{text-align:center;padding:30px 10px;display:flex;flex-direction:column;gap:10px;align-items:center}
+
+/* footer: top 3 */
+.foot{position:fixed;left:0;right:0;bottom:0;z-index:15;background:var(--paper);border-top:3px solid var(--blue);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-top:8px;padding-bottom:max(8px,env(safe-area-inset-bottom,0px))}
+.foot .in{max-width:1180px;margin:0 auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.foot .lbl{font-family:var(--f-ui);font-weight:700;font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.leader{display:inline-flex;align-items:center;gap:8px;border-radius:999px;padding:5px 14px 5px 6px;background:var(--tint);font-family:var(--f-ui);font-weight:700;font-size:clamp(.85rem,1.6vw,1.05rem);font-variant-numeric:tabular-nums}
+.leader .r{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:var(--ink);color:#fff;font-size:.8rem}
+.leader.r1{background:var(--blue-soft)} .leader.r1 .r{background:var(--blue);color:var(--ink)}
+.leader .s{color:var(--muted);font-weight:600}
+
+/* standings */
+.podium{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:end;text-align:center}
+.pod{border-radius:14px 14px 0 0;background:var(--blue-soft);border:2px solid var(--blue);padding:12px 8px;display:flex;flex-direction:column;gap:4px;justify-content:flex-end}
+.pod .pn{font-family:var(--f-display);font-size:clamp(1.3rem,3.5vw,2.2rem);word-break:break-word}
+.pod .ps{font-family:var(--f-ui);font-weight:700;font-variant-numeric:tabular-nums}
+.pod .pr{font-family:var(--f-display);font-size:2.6rem;color:var(--blue-ink);line-height:1}
+.pod.p1{min-height:220px;background:var(--blue)} .pod.p1 .pr{color:var(--ink)}
+.pod.p2{min-height:170px} .pod.p3{min-height:140px}
+.stand{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.stand td,.stand th{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left}
+.stand th{font-family:var(--f-ui);font-size:.8rem;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.stand td.sc{text-align:right;font-family:var(--f-ui);font-weight:700}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--line);margin-right:6px}
+.dot.on{background:var(--blue)}
+.sheet{position:fixed;inset:0;z-index:30;background:rgba(31,42,51,.35);display:flex;justify-content:flex-end}
+.sheet .in{background:var(--paper);width:min(420px,100%);height:100%;overflow-y:auto;padding:18px max(16px,env(safe-area-inset-right,0px)) 18px 18px;display:flex;flex-direction:column;gap:12px}
+.banner{background:var(--orange-soft);border:1px solid var(--orange);border-radius:10px;padding:8px 12px;font-size:.9rem}
+
+/* charts */
+.ch .gl{stroke:#ece8e3;stroke-width:1}
+.ch .ax{stroke:var(--ink);stroke-width:1.5}
+.ch .tk{fill:var(--muted);font:13px var(--f-body)}
+.ch .lab{fill:var(--ink);font:700 14px var(--f-ui)}
+.ch .bar{fill:var(--blue);stroke:var(--ink);stroke-width:1}
+.ch .bar.b2{fill:var(--DeterminedGray)}
+.ch .cnt{fill:var(--ink);font:700 13px var(--f-ui)}
+.ch .box{fill:var(--blue-soft);stroke:var(--ink);stroke-width:2}
+.ch .box.b2{fill:var(--orange-soft)}
+.ch .wk{stroke:var(--ink);stroke-width:2}
+.ch .md{stroke:var(--ink);stroke-width:3.5}
+.ch .out{fill:var(--orange);stroke:var(--ink);stroke-width:1.5}
+.ch .vl{fill:var(--muted);font:12px var(--f-body)}
+@media (prefers-reduced-motion:reduce){.tile{transition:none}.tile:hover:not(:disabled){transform:none}}
+@media (max-width:560px){.foot .lbl{display:none}.leader{font-size:.8rem;padding:3px 10px 3px 4px;gap:5px}.leader .r{width:20px;height:20px;font-size:.7rem}.board{gap:5px}.cat{min-height:52px;padding:6px 3px}.opts{grid-template-columns:1fr}.podium{gap:6px}}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<div class="foot" id="foot" hidden></div>
+<div class="sheet" id="sheet" hidden></div>
+<script src="questions.js"></script>
+<script>
+/* ================= charts ================= */
+function hist(o){
+  const W=640,sets=o.sets,H=sets.length>1?220:300,m={l:52,r:14,t:sets.length>1?34:16,b:44};let svg='';
+  sets.forEach((s,si)=>{
+    const top=si*H+m.t,ph=H-m.t-m.b,pw=W-m.l-m.r,nb=o.edges.length-1,X=i=>m.l+i/nb*pw,Y=v=>top+ph-v/o.ymax*ph;
+    if(s.name)svg+=`<text class="lab" x="${m.l}" y="${top-12}">${s.name}</text>`;
+    for(let v=0;v<=o.ymax;v+=o.ystep)svg+=`<line class="gl" x1="${m.l}" x2="${W-m.r}" y1="${Y(v)}" y2="${Y(v)}"/><text class="tk" x="${m.l-8}" y="${Y(v)+4}" text-anchor="end">${v}</text>`;
+    s.counts.forEach((c,i)=>{if(c>0){svg+=`<rect class="bar ${s.cls||''}" x="${X(i)}" y="${Y(c)}" width="${pw/nb}" height="${Y(0)-Y(c)}"/>`;if(o.labels)svg+=`<text class="cnt" x="${X(i)+pw/nb/2}" y="${Y(c)-6}" text-anchor="middle">${c}</text>`;}});
+    svg+=`<line class="ax" x1="${m.l}" x2="${W-m.r}" y1="${Y(0)}" y2="${Y(0)}"/><line class="ax" x1="${m.l}" x2="${m.l}" y1="${top}" y2="${Y(0)}"/>`;
+    o.edges.forEach((e,i)=>{if(o.every&&i%o.every)return;svg+=`<text class="tk" x="${X(i)}" y="${Y(0)+18}" text-anchor="middle">${(o.prefix||'')+e}</text>`;});
+    if(si===sets.length-1)svg+=`<text class="lab" x="${m.l+pw/2}" y="${top+ph+40}" text-anchor="middle">${o.xl}</text>`;
+    svg+=`<text class="lab" transform="translate(14 ${top+ph/2}) rotate(-90)" text-anchor="middle">${o.yl}</text>`;
+  });
+  return `<svg class="ch" viewBox="0 0 ${W} ${H*sets.length}" role="img" aria-label="${o.alt}">${svg}</svg>`;
+}
+function boxes(o){
+  const W=640,rowH=o.values?96:82,lw=o.plots.some(p=>p.name)?96:20,m={l:lw,r:24,t:18,b:52},H=m.t+rowH*o.plots.length+m.b,pw=W-m.l-m.r,X=v=>m.l+(v-o.lo)/(o.hi-o.lo)*pw;
+  let s='';
+  for(let v=o.lo;v<=o.hi+1e-9;v+=o.step)s+=`<line class="gl" x1="${X(v)}" x2="${X(v)}" y1="${m.t}" y2="${H-m.b}"/><text class="tk" x="${X(v)}" y="${H-m.b+20}" text-anchor="middle">${v}</text>`;
+  s+=`<line class="ax" x1="${m.l}" x2="${W-m.r}" y1="${H-m.b}" y2="${H-m.b}"/>`;
+  o.plots.forEach((p,i)=>{
+    const cy=m.t+rowH*i+rowH/2-(o.values?8:0),h=34;
+    if(p.name)s+=`<text class="lab" x="${m.l-12}" y="${cy+5}" text-anchor="end">${p.name}</text>`;
+    s+=`<line class="wk" x1="${X(p.min)}" x2="${X(p.q1)}" y1="${cy}" y2="${cy}"/><line class="wk" x1="${X(p.q3)}" x2="${X(p.max)}" y1="${cy}" y2="${cy}"/><line class="wk" x1="${X(p.min)}" x2="${X(p.min)}" y1="${cy-h/3}" y2="${cy+h/3}"/><line class="wk" x1="${X(p.max)}" x2="${X(p.max)}" y1="${cy-h/3}" y2="${cy+h/3}"/>`;
+    s+=`<rect class="box ${i%2?'b2':''}" x="${X(p.q1)}" y="${cy-h/2}" width="${X(p.q3)-X(p.q1)}" height="${h}"/><line class="md" x1="${X(p.med)}" x2="${X(p.med)}" y1="${cy-h/2}" y2="${cy+h/2}"/>`;
+    (p.out||[]).forEach(v=>s+=`<circle class="out" cx="${X(v)}" cy="${cy}" r="7"/>`);
+    if(o.values)[p.min,p.q1,p.med,p.q3,p.max].forEach(v=>s+=`<text class="vl" x="${X(v)}" y="${cy+h/2+16}" text-anchor="middle">${v}</text>`);
+  });
+  s+=`<text class="lab" x="${m.l+pw/2}" y="${H-10}" text-anchor="middle">${o.xl}</text>`;
+  return `<svg class="ch" viewBox="0 0 ${W} ${H}" role="img" aria-label="${o.alt}">${s}</svg>`;
+}
+const figHTML=f=>f?`<div class="fig">${f.t==='h'?hist(f):boxes(f)}</div>`:'';
+
+/* ================= shared ================= */
+const $app=document.getElementById('app'),$foot=document.getElementById('foot'),$sheet=document.getElementById('sheet');
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt=n=>(n<0?'−':'')+Math.abs(n).toLocaleString();
+const L='ABCD';
+const store={get(k){try{return JSON.parse(localStorage.getItem(k)||'null');}catch(e){return null;}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}},del(k){try{localStorage.removeItem(k);}catch(e){}}};
+let live=null; // null = checking, true/false
+let view='home', S=null, es=null, conn='ok', err='', hostSet='1', sheetOpen=false, deadline=0, tick=null, lastKey=null, wagerDraft='';
+async function api(path,body){
+  const r=await fetch(path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  let j={};try{j=await r.json();}catch(e){}
+  if(!r.ok)throw new Error(j.error||'Something went wrong. Try again.');
+  return j;
+}
+function render(){
+  // keep focus and typing across re-renders
+  const a=document.activeElement,id=a&&a.id,val=a&&'value' in a?a.value:null,sel=a&&a.selectionStart!=null?[a.selectionStart,a.selectionEnd]:null;
+  ({home:renderHome,hostSetup:renderHostSetup,host:renderHost,join:renderJoin,player:renderPlayer,practiceSetup:renderPracticeSetup,practice:renderPractice}[view]||renderHome)();
+  if(id){const el=document.getElementById(id);if(el){if(val!=null&&el.value!==val&&el.dataset.keep!=='no')el.value=val;el.focus();if(sel)try{el.setSelectionRange(sel[0],sel[1]);}catch(e){}}}
+  renderFoot();
+}
+function renderFoot(){
+  const t=(view==='host'||view==='player')&&S&&S.phase!=='lobby'&&S.top3?S.top3:null;
+  if(!t||!t.length){$foot.hidden=true;return;}
+  $foot.hidden=false;
+  $foot.innerHTML=`<div class="in"><span class="lbl">Top 3</span>${t.map(p=>`<span class="leader r${p.rank}"><span class="r">${p.rank}</span>${esc(p.name)} <span class="s">${fmt(p.score)}</span></span>`).join('')}${conn!=='ok'?'<span class="note" style="margin-left:auto">Reconnecting…</span>':''}</div>`;
+}
+function timerHTML(c){
+  if(!c||c.revealed||!c.remainingMs&&!deadline)return '';
+  return `<div class="timer"><div class="tbar" id="tbar"><i id="tfill"></i></div><span class="tnum" id="tnum"></span></div>`;
+}
+function startTick(c){
+  clearInterval(tick);
+  if(!c||c.revealed||!(c.remainingMs>0)){deadline=0;return;}
+  deadline=Date.now()+c.remainingMs;const total=c.isFinal?60000:30000;
+  const upd=()=>{const left=Math.max(0,deadline-Date.now()),f=document.getElementById('tfill'),n=document.getElementById('tnum'),b=document.getElementById('tbar');
+    if(f)f.style.width=(left/total*100)+'%';if(b)b.classList.toggle('low',left<=10000);if(n)n.textContent=left>0?Math.ceil(left/1000):'Time!';
+    if(left<=0){clearInterval(tick);if(view==='player'&&S&&S.cur&&!S.cur.revealed)render();}};
+  upd();tick=setInterval(upd,250);
+}
+function timeUp(){return deadline&&Date.now()>deadline;}
+
+/* ================= home ================= */
+function renderHome(){
+  const saved=store.get('dj-host'),ps=store.get('dj-player');
+  const off=live===false;
+  $app.className='wrap';
+  $app.innerHTML=`<header class="top"><h1>Data <span>Jeopardy!</span></h1></header>
+  <p class="note" style="font-size:1.05rem;max-width:60ch">Review histograms, box plots, mean and median, range, IQR and standard deviation. Play as a class with your teacher, or practice on your own.</p>
+  <div class="modes">
+    <button class="mode" data-go="join" ${off?'disabled':''}><span class="tag">Students</span><h3>Join a class game</h3><p>Enter the game code on the board and your first name.</p></button>
+    <button class="mode" data-go="practiceSetup"><span class="tag">Students</span><h3>Practice on my own</h3><p>Play the whole board solo. Your answers are checked right away.</p></button>
+    <button class="mode" data-go="hostSetup" ${off?'disabled':''}><span class="tag">Teacher</span><h3>Host a class game</h3><p>Show the board on the projector. Up to 20 students answer on their own devices.</p></button>
+  </div>
+  ${off?`<p class="banner">Class games need this page to run from the game server. Practice mode works anywhere.</p>`:''}
+  ${saved&&!off?`<div class="row"><button class="btn ghost" data-act="rehost">Return to the game I'm hosting (${esc(saved.code)})</button></div>`:''}
+  ${ps&&!off?`<div class="row"><button class="btn ghost" data-act="rejoin">Rejoin game ${esc(ps.code)} as ${esc(ps.name)}</button></div>`:''}`;
+}
+
+/* ================= host ================= */
+function renderHostSetup(){
+  $app.className='wrap narrow';
+  $app.innerHTML=`<header class="top"><h1>Host a <span>game</span></h1><button class="btn ghost" data-go="home">Back</button></header>
+  <div class="panel"><span class="eyebrow">Choose the questions</span><div class="pick">${BANK.sets.map(s=>`<button class="${hostSet===s.id?'on':''}" data-hostset="${s.id}">${esc(s.name)}</button>`).join('')}</div>
+  <p class="note">Each game has 25 clues and a Final Jeopardy. Students who answer correctly earn the clue's points. Daily Double clues are worth double.</p>
+  <div class="row"><button class="btn big" data-act="create">Create game</button></div><p class="err">${esc(err)}</p></div>`;
+}
+function connect(qs){
+  if(es)es.close();
+  conn='ok';
+  es=new EventSource('/api/events?'+new URLSearchParams(qs));
+  es.onmessage=e=>{conn='ok';const d=JSON.parse(e.data);
+    if(d.kicked){es.close();store.del('dj-player');S=null;view='join';err='Your teacher removed you from the game.';return render();}
+    const nk=d.cur?d.cur.key+(d.cur.revealed?'r':'')+d.phase:null;const keyChanged=nk!==lastKey;lastKey=nk;
+    S=d;render();startTick(d.cur);if(keyChanged)window.scrollTo({top:0});};
+  const mine=es;
+  es.onerror=()=>{if(leaving||mine!==es)return;conn='lost';renderFoot();
+    if(es.readyState===2)setTimeout(async()=>{if(leaving||mine!==es)return;
+      let ok=null;try{const r=await fetch('/api/check',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(qs)});ok=r.ok?true:r.status===404?false:null;}catch(e){ok=null;}
+      if(ok===false)return gone();
+      connect(qs);},2000);};
+}
+let leaving=false;
+addEventListener('pagehide',()=>{leaving=true;});addEventListener('pageshow',()=>{leaving=false;});
+function gone(){
+  if(view==='host'){store.del('dj-host');}
+  if(view==='player'){store.del('dj-player');}
+  S=null;err='That game has ended or the server restarted.';view='home';render();
+}
+function host(act,extra){const h=store.get('dj-host');return api('/api/action',{code:h.code,token:h.token,action:act,...extra}).catch(e=>{err=e.message;render();setTimeout(()=>{err='';render();},3000);});}
+function renderHost(){
+  $app.className='wrap';
+  if(!S){$app.innerHTML='<p class="note">Connecting…</p>';return;}
+  const c=S.cur,ph=S.phase;
+  const head=`<header class="top"><h1>Data <span>Jeopardy!</span></h1><span class="chip code">Code ${esc(S.code)}</span><span class="chip">${S.playerCount}/${S.maxPlayers} players</span><button class="btn ghost" data-act="players">Players & scores</button></header>${err?`<p class="err">${esc(err)}</p>`:''}`;
+  let h=head;
+  if(ph==='lobby'){
+    h+=`<div class="joinbig"><span class="eyebrow">Join the game</span><span class="url">Go to ${esc(location.host)} and tap “Join a class game”</span><span class="code">${esc(S.code)}</span><span class="note">First names only · ${esc(S.setName)}</span></div>
+    <div class="row" style="justify-content:space-between"><h2>${S.playerCount} joined</h2><button class="btn big" data-act="start" ${S.playerCount?'':'disabled'}>Start the game</button></div>
+    <div class="names">${S.players.map(p=>`<span class="name${p.online?'':' off'}">${esc(p.name)}<button class="x" data-kick="${p.pid}" aria-label="Remove ${esc(p.name)}">×</button></span>`).join('')||'<p class="note">Names appear here as students join.</p>'}</div>`;
+  }else if(ph==='board'){
+    h+=`<div class="board">${S.cats.map(n=>`<div class="cat">${esc(n)}</div>`).join('')}${S.values.map((v,r)=>S.cats.map((n,ci)=>{const k=ci+'-'+r,u=S.used[k];return `<button class="tile" data-open="${k}" ${u?'disabled':''} aria-label="${esc(n)} for ${v}">${u?'✓':v}</button>`;}).join('')).join('')}</div>
+    <div class="row" style="justify-content:space-between"><p class="note">${Object.keys(S.used).length} of 25 clues played. One tile is a Daily Double worth double points.</p><button class="btn dark" data-act="final">Go to Final Jeopardy</button></div>`;
+  }else if(ph==='fwager'){
+    h+=`<div class="chead"><span class="cname">Final Jeopardy</span></div><div class="wait"><span class="eyebrow">Category</span><h2>${esc(c.cat)}</h2>
+     <p class="clue" style="text-align:center">Students: enter your wager on your device. You can wager up to your current score.</p>
+     <span class="big-stat">${c.wagered} / ${S.playerCount}</span><span class="note">wagers in</span>
+     <button class="btn big" data-act="finalClue">Show the clue</button></div>`;
+  }else if(ph==='over'){
+    h+=standingsHTML(S.players,true)+`<div class="row"><button class="btn ghost" data-act="newgame">Host a new game</button></div>`;
+  }else if(c){
+    const rev=c.revealed;
+    h+=`<div class="chead"><span class="cname">${esc(c.cat)}${c.isFinal?' · Final Jeopardy':''}</span>${c.dd?'<span class="ddb">Daily Double · double points</span>':''}${c.value?`<span class="val">${c.value}</span>`:''}</div>
+     <p class="clue">${c.q}</p>${figHTML(c.fig)}
+     <div class="opts">${c.opts.map((o,i)=>{const cls=rev?(i===c.correct?' right':' dim'):'';const tot=rev?Math.max(1,c.counts.reduce((a,b)=>a+b,0)):1;
+       return `<div class="opt${cls}">${rev?`<span class="fill" style="width:${c.counts[i]/tot*100}%"></span>`:''}<span class="k">${L[i]}</span><span class="t">${o}</span>${rev?`<span class="n">${c.counts[i]}</span>`:''}</div>`;}).join('')}</div>`;
+    if(!rev){
+      h+=timerHTML(c)+`<div class="row" style="justify-content:space-between"><span class="big-stat" style="font-size:2rem">${c.answered} / ${S.playerCount} answered</span><div class="row">${c.isFinal?'':'<button class="btn ghost" data-act="cancel">Cancel clue</button>'}<button class="btn big" data-act="reveal">Show answer</button></div></div>`;
+    }else{
+      h+=`<div class="ans"><b>${L[c.correct]}. ${c.opts[c.correct]}</b><br>${c.w}</div>
+       <p class="note" style="font-size:1rem"><b>${c.rightNames.length} of ${S.playerCount} correct</b>${c.rightNames.length?': '+c.rightNames.map(esc).join(', '):''}</p>
+       <div class="row">${c.isFinal?'<button class="btn big" data-act="finish">Show final results</button>':'<button class="btn big dark" data-act="back">Back to board</button>'}</div>`;
+    }
+  }
+  $app.innerHTML=h;
+  renderSheet();
+}
+function standingsHTML(list,isHost){
+  const t=list.slice(0,3);const order=[t[1],t[0],t[2]];
+  return `<div class="wait"><span class="eyebrow">Final results</span><h2>${t[0]?esc(t[0].name)+' wins!':'No players'}</h2></div>
+  <div class="podium">${order.map((p,i)=>p?`<div class="pod p${p.rank===1?1:i===0?2:3}"><span class="pr">${p.rank}</span><span class="pn">${esc(p.name)}</span><span class="ps">${fmt(p.score)}</span></div>`:'<div></div>').join('')}</div>
+  <table class="stand"><thead><tr><th>Rank</th><th>Name</th><th style="text-align:right">Score</th></tr></thead><tbody>${list.map(p=>`<tr><td>${p.rank}</td><td>${esc(p.name)}</td><td class="sc">${fmt(p.score)}</td></tr>`).join('')}</tbody></table>`;
+}
+function renderSheet(){
+  if(!sheetOpen||view!=='host'||!S){$sheet.hidden=true;return;}
+  $sheet.hidden=false;
+  $sheet.innerHTML=`<div class="in" role="dialog" aria-label="Players and scores"><div class="row" style="justify-content:space-between"><h2>Players</h2><button class="btn ghost" data-act="players">Close</button></div>
+   <p class="note">A blue dot means the student is connected. Remove a name to take that student out of the game.</p>
+   <table class="stand"><thead><tr><th>#</th><th>Name</th><th style="text-align:right">Score</th><th></th></tr></thead><tbody>${S.players.map(p=>`<tr><td>${p.rank}</td><td><span class="dot${p.online?' on':''}"></span>${esc(p.name)}</td><td class="sc">${fmt(p.score)}</td><td><button class="x" data-kick="${p.pid}" aria-label="Remove ${esc(p.name)}">×</button></td></tr>`).join('')||'<tr><td colspan="4" class="note">No players yet.</td></tr>'}</tbody></table></div>`;
+}
+
+/* ================= player ================= */
+function renderJoin(){
+  $app.className='wrap narrow';
+  const pre=new URLSearchParams(location.search).get('code')||'';
+  $app.innerHTML=`<header class="top"><h1>Join a <span>game</span></h1><button class="btn ghost" data-go="home">Back</button></header>
+  <form class="panel" id="joinform"><label class="f" for="jcode">Game code<input class="inp code" id="jcode" maxlength="4" autocomplete="off" autocapitalize="characters" value="${esc(pre)}" placeholder="ABCD"></label>
+  <label class="f" for="jname">Your first name<input class="inp" id="jname" maxlength="16" autocomplete="given-name" placeholder="First name only"></label>
+  <button class="btn big" type="submit">Join</button><p class="err">${esc(err)}</p></form>`;
+}
+async function doJoin(code,name){
+  try{const j=await api('/api/join',{code,name});store.set('dj-player',{code:j.code,pid:j.pid,ptoken:j.ptoken,name:j.name});err='';startPlayer();}
+  catch(e){err=e.message;render();}
+}
+function startPlayer(){const p=store.get('dj-player');if(!p)return;view='player';S=null;lastKey=null;render();connect({code:p.code,role:'player',pid:p.pid,ptoken:p.ptoken});}
+function renderPlayer(){
+  $app.className='wrap narrow pl';
+  if(!S){$app.innerHTML='<p class="note">Connecting…</p>';return;}
+  const c=S.cur,ph=S.phase,me=S.me;
+  let h=`<div class="me"><span class="nm">${esc(me.name)}</span><span class="chip">Score ${fmt(me.score)}</span><span class="chip">Rank ${me.rank} of ${S.playerCount}</span><button class="btn ghost" data-act="leave" style="padding:6px 12px;font-size:.8rem">Leave</button></div>`;
+  if(ph==='lobby'||ph==='board'){
+    h+=`<div class="wait"><span class="eyebrow">${ph==='lobby'?'You’re in!':'Get ready'}</span><h2>${ph==='lobby'?'Waiting for the game to start':'Watch the board for the next clue'}</h2><p class="note">Your question will appear here when your teacher picks it.</p></div>`;
+  }else if(ph==='fwager'){
+    const max=c.maxWager;
+    h+=`<div class="wait"><span class="eyebrow">Final Jeopardy</span><h2>${esc(c.cat)}</h2></div>
+    ${max===0?`<div class="panel"><p class="clue" style="font-size:1.1rem">Your score is 0 or less, so your wager is 0. You can still answer the final clue.</p></div>`:`<form class="panel" id="wagerform"><label class="f" for="wager">Your wager (0 to ${fmt(max)})<input class="inp" id="wager" type="number" inputmode="numeric" min="0" max="${max}" step="1" value="${esc(wagerDraft)}" placeholder="0"></label>
+    <button class="btn big" type="submit">${c.myWager!=null?'Change wager':'Lock in wager'}</button>
+    <p class="note">${c.myWager!=null?`Your wager: <b>${fmt(c.myWager)}</b>. A right answer adds it; a wrong answer subtracts it.`:max===0?'Your score is 0 or less, so your wager is 0.':'A right answer adds your wager; a wrong answer subtracts it.'}</p><p class="err">${esc(err)}</p></form>`}`;
+  }else if(ph==='over'){
+    h+=`<div class="wait"><span class="eyebrow">Game over</span><span class="big-stat">#${me.rank}</span><p class="note" style="font-size:1.05rem">You finished ${me.rank} of ${S.playerCount} with ${fmt(me.score)} points.</p></div>`+standingsHTML(S.standings||[],false);
+  }else if(c){
+    const rev=c.revealed,locked=!rev&&timeUp();
+    h+=`<div class="chead"><span class="cname">${esc(c.cat)}${c.isFinal?' · Final':''}</span>${c.dd?'<span class="ddb">Double points</span>':''}${c.value?`<span class="val">${c.value}</span>`:''}</div>`;
+    if(rev){
+      const pts=c.points,res=c.myChoice==null?'none':c.myChoice===c.correct?'ok':'no';
+      h+=`<div class="result ${res}"><b>${res==='ok'?'Correct!':res==='no'?'Not this time':'No answer'}</b><span>${pts>0?'+'+fmt(pts)+' points':pts<0?fmt(pts)+' points':'0 points'}</span></div>`;
+    }
+    h+=`<p class="clue">${c.q}</p>${figHTML(c.fig)}${rev?'':timerHTML(c)}
+    <div class="opts">${c.opts.map((o,i)=>{let cls='';if(rev)cls=i===c.correct?' right':i===c.myChoice?' wrong':' dim';else if(c.myChoice===i)cls=' sel';
+      return `<button class="opt${cls}" data-ans="${i}" ${rev||locked?'disabled':''} aria-pressed="${c.myChoice===i}"><span class="k">${L[i]}</span><span class="t">${o}</span></button>`;}).join('')}</div>`;
+    if(rev)h+=`<div class="ans">${c.w}</div>`;
+    else h+=`<p class="note" style="text-align:center">${locked?'Time’s up. Waiting for the answer…':c.myChoice!=null?'Answer saved. You can change it until time runs out.':'Tap your answer.'}</p>${err?`<p class="err">${esc(err)}</p>`:''}`;
+  }
+  $app.innerHTML=h;
+}
+
+/* ================= practice ================= */
+let P=null;
+function renderPracticeSetup(){
+  $app.className='wrap narrow';
+  $app.innerHTML=`<header class="top"><h1>Practice <span>mode</span></h1><button class="btn ghost" data-go="home">Back</button></header>
+  <div class="panel"><span class="eyebrow">Choose a game</span><p class="note">Play all 25 clues and Final Jeopardy. Pick a tile, choose an answer, and see the explanation right away.</p>
+  <div class="pick">${BANK.sets.map(s=>{const sv=store.get('dj-practice-'+s.id);const best=store.get('dj-best-'+s.id);return `<button data-pset="${s.id}">${esc(s.name)}${sv&&!sv.done?' · resume':''}${best!=null?` · best ${fmt(best)}`:''}</button>`;}).join('')}</div></div>`;
+}
+function shuffleN(n){const a=[...Array(n).keys()];for(let i=n-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function startPractice(id){
+  P=store.get('dj-practice-'+id);
+  if(!P||P.done)P={set:id,score:0,ans:{},perm:{},cur:null,done:false};
+  view='practice';render();
+}
+const pSave=()=>store.set('dj-practice-'+P.set,P);
+const pSet=()=>BANK.sets.find(s=>s.id===P.set);
+function pClue(k){const s=pSet();if(k==='F')return{cat:s.final.cat,value:500,clue:s.final};const [c,r]=k.split('-').map(Number);return{cat:s.cats[c].name,value:BANK.values[r],clue:s.cats[c].clues[r]};}
+function renderPractice(){
+  $app.className='wrap';
+  const s=pSet(),k=P.cur;
+  let h=`<header class="top"><h1>Practice: <span>${esc(s.name)}</span></h1><span class="chip">Score ${fmt(P.score)}</span><button class="btn ghost" data-go="practiceSetup">Exit</button></header>`;
+  if(P.done){
+    const best=store.get('dj-best-'+P.set);
+    h+=`<div class="wait"><span class="eyebrow">Practice complete</span><span class="big-stat">${fmt(P.score)}</span><p class="note" style="font-size:1.05rem">out of ${fmt(8000)} points${best!=null?` · your best: ${fmt(best)}`:''}</p>
+     <p class="note">${Object.values(P.ans).filter(a=>a.ok).length} of 26 correct.</p><div class="row"><button class="btn big" data-pset="${P.set}">Play again</button></div></div>`;
+  }else if(!k){
+    const n=Object.keys(P.ans).filter(x=>x!=='F').length;
+    h+=`<div class="board">${s.cats.map(c=>`<div class="cat">${esc(c.name)}</div>`).join('')}${BANK.values.map((v,r)=>s.cats.map((c,ci)=>{const key=ci+'-'+r,a=P.ans[key];return `<button class="tile" data-popen="${key}" ${a?'disabled':''} aria-label="${esc(c.name)} for ${v}">${a?(a.ok?'✓':'✗'):v}</button>`;}).join('')).join('')}</div>
+    <div class="row" style="justify-content:space-between"><p class="note">${n} of 25 played. Final Jeopardy is worth 500 points.</p><button class="btn dark" data-popen="F" ${n<25?'':''}>${n<25?'Skip to Final Jeopardy':'Play Final Jeopardy'}</button></div>`;
+  }else{
+    const {cat,value,clue}=pClue(k),perm=P.perm[k]||(P.perm[k]=shuffleN(clue.c.length)),opts=perm.map(i=>clue.c[i]),correct=perm.indexOf(0),a=P.ans[k];
+    h+=`<div class="chead"><span class="cname">${esc(cat)}${k==='F'?' · Final Jeopardy':''}</span><span class="val">${value}</span></div>`;
+    if(a)h+=`<div class="result ${a.ok?'ok':'no'}"><b>${a.ok?'Correct!':'Not this time'}</b><span>${a.ok?'+'+value+' points':'0 points'}</span></div>`;
+    h+=`<p class="clue">${clue.q}</p>${figHTML(clue.fig)}<div class="opts">${opts.map((o,i)=>{let cls='';if(a)cls=i===correct?' right':i===a.choice?' wrong':' dim';return `<button class="opt${cls}" data-pans="${i}" ${a?'disabled':''}><span class="k">${L[i]}</span><span class="t">${o}</span></button>`;}).join('')}</div>`;
+    if(a)h+=`<div class="ans">${clue.w}</div><div class="row"><button class="btn big dark" data-act="pback">${k==='F'?'See my score':'Back to board'}</button></div>`;
+  }
+  $app.innerHTML=h;
+}
+
+/* ================= events ================= */
+document.addEventListener('click',async e=>{
+  const go=e.target.closest('[data-go]');
+  if(go){if(es&&(view==='host'||view==='player')){es.close();es=null;}clearInterval(tick);sheetOpen=false;err='';view=go.dataset.go;S=null;render();window.scrollTo({top:0});return;}
+  const hs=e.target.closest('[data-hostset]');if(hs){hostSet=hs.dataset.hostset;return render();}
+  const op=e.target.closest('[data-open]');if(op)return host('open',{key:op.dataset.open});
+  const kk=e.target.closest('[data-kick]');
+  if(kk){const b=kk;if(b.dataset.arm!=='1'){b.dataset.arm='1';b.textContent='Remove?';b.style.width='auto';b.style.padding='0 8px';b.style.borderRadius='999px';setTimeout(()=>{if(b.isConnected){b.dataset.arm='';b.textContent='×';b.removeAttribute('style');}},3000);return;}return host('kick',{pid:b.dataset.kick});}
+  const an=e.target.closest('[data-ans]');
+  if(an){const p=store.get('dj-player');S.cur.myChoice=+an.dataset.ans;render();try{await api('/api/answer',{code:p.code,pid:p.pid,ptoken:p.ptoken,choice:+an.dataset.ans});err='';}catch(x){err=x.message;render();}return;}
+  const ps=e.target.closest('[data-pset]');if(ps)return startPractice(ps.dataset.pset);
+  const po=e.target.closest('[data-popen]');if(po){P.cur=po.dataset.popen;pSave();render();window.scrollTo({top:0});return;}
+  const pa=e.target.closest('[data-pans]');
+  if(pa){const k=P.cur,{value,clue}=pClue(k),correct=P.perm[k].indexOf(0),ch=+pa.dataset.pans,ok=ch===correct;P.ans[k]={choice:ch,ok};if(ok)P.score+=value;pSave();return render();}
+  const b=e.target.closest('[data-act]');if(!b)return;
+  const act=b.dataset.act;
+  if(act==='pback'){if(P.cur==='F'){P.done=true;const best=store.get('dj-best-'+P.set);if(best==null||P.score>best)store.set('dj-best-'+P.set,P.score);}P.cur=null;pSave();render();window.scrollTo({top:0});return;}
+  if(act==='create'){try{const j=await api('/api/host',{set:hostSet});store.set('dj-host',j);err='';startHost();}catch(x){err=x.message;render();}return;}
+  if(act==='rehost')return startHost();
+  if(act==='rejoin')return startPlayer();
+  if(act==='players'){sheetOpen=!sheetOpen;return renderSheet();}
+  if(act==='leave'){if(b.dataset.arm!=='1'){b.dataset.arm='1';b.textContent='Tap again to leave';setTimeout(()=>{if(b.isConnected){b.dataset.arm='';b.textContent='Leave';}},3000);return;}store.del('dj-player');if(es)es.close();S=null;view='home';return render();}
+  if(act==='newgame'){store.del('dj-host');if(es)es.close();S=null;view='hostSetup';return render();}
+  if(['start','reveal','back','cancel','final','finalClue','finish'].includes(act))return host(act);
+});
+$sheet.addEventListener('click',e=>{if(e.target===$sheet){sheetOpen=false;renderSheet();}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&sheetOpen){sheetOpen=false;renderSheet();}});
+document.addEventListener('input',e=>{if(e.target.id==='wager')wagerDraft=e.target.value;});
+document.addEventListener('submit',async e=>{
+  e.preventDefault();
+  if(e.target.id==='joinform'){const code=document.getElementById('jcode').value.trim().toUpperCase(),name=document.getElementById('jname').value;
+    if(!/^[A-Z]{4}$/.test(code)){err='Enter the 4-letter code from the board.';return render();}return doJoin(code,name);}
+  if(e.target.id==='wagerform'){const p=store.get('dj-player'),v=document.getElementById('wager').value.trim();
+    try{await api('/api/wager',{code:p.code,pid:p.pid,ptoken:p.ptoken,amount:v===''?0:Number(v)});err='';}catch(x){err=x.message;}render();}
+});
+function startHost(){const h=store.get('dj-host');if(!h)return;view='host';S=null;lastKey=null;render();connect({code:h.code,role:'host',token:h.token});}
+
+/* ================= boot ================= */
+(async()=>{
+  render();
+  if(location.protocol.startsWith('http')){try{const r=await fetch('/api/ping',{cache:'no-store'});live=r.ok;}catch(e){live=false;}}else live=false;
+  const q=new URLSearchParams(location.search).get('code'),p=store.get('dj-player'),hs=store.get('dj-host');
+  if(live){
+    if(p&&(!q||p.code===q.toUpperCase()))return startPlayer();
+    if(q){view='join';return render();}
+    if(hs)return startHost();
+  }
+  render();
+})();
+</script>
+</body>
+</html>

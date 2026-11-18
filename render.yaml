@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: data-jeopardy-live
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start

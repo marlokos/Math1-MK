@@ -1,0 +1,10 @@
+{
+  "name": "data-jeopardy-live",
+  "version": "1.0.0",
+  "description": "Live classroom Jeopardy review on histograms, box plots, center and spread.",
+  "main": "server.js",
+  "scripts": { "start": "node server.js" },
+  "engines": { "node": ">=18" },
+  "license": "UNLICENSED",
+  "private": true
+}
