@@ -108,7 +108,7 @@ A teacher-driven class activity for **Unit 7 Lesson 2: Comparing Quadratic and E
 
 **https://marlokos.github.io/Math1-MK/fall/**
 
-It follows the lesson slides in order and takes about 50 minutes:
+It uses the BRHS brand styling from Math 1 Jeopardy Linear (Carolina Blue, Clemson Orange, Determined Gray; KG Summer Sunshine headings from `public/fonts/`, Poppins and Arial). It follows the lesson slides in order and takes about 50 minutes:
 
 | Part | Steps | Time | From the lesson |
 | --- | --- | --- | --- |
