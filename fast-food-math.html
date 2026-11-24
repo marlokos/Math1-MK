@@ -432,8 +432,8 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 #partA .ticket .num,#partB .ticket .num,#partA .clock .t,#partB .sign,.tab b,#partA .tried .nm{font-family:var(--f-ui)!important;font-weight:700}
 #partA .ticket .num,#partB .ticket .num{font-size:22px;letter-spacing:.12em}
 #partA .clock .t{font-size:clamp(20px,2.2vw,28px)}
-#partB .sign{font-size:11px;letter-spacing:.08em}
-#partB .awning{top:max(20%,22px)}
+#partB .sign{font-size:clamp(14px,1.7vw,22px);letter-spacing:.03em;top:-4px;padding:1px 14px;border-radius:8px;z-index:1;text-transform:none}
+#partB .awning{top:max(22%,30px)}
 #partA .legend,#partB .legend{font-size:12px;gap:4px 10px}
 #partA .graph-head h2,#partB .graph-head h2{font-size:16px}
 #partB .graph-head{flex-wrap:nowrap}
@@ -592,7 +592,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
   <section class="panel station">
       <div class="scene" id="b-scene" aria-hidden="true">
         <span class="dayflag" id="b-dayflag">Week 1 · Monday</span>
-        <div class="bldg"><span class="sign">OPEN 7 DAYS</span><div class="awning"></div><div class="win l"></div><div class="door"></div><div class="win r"></div></div>
+        <div class="bldg"><span class="sign">McDowells</span><div class="awning"></div><div class="win l"></div><div class="door"></div><div class="win r"></div></div>
         <div class="sidewalk"></div>
         <div class="night" id="b-night"></div>
       </div>
