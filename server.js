@@ -8,10 +8,6 @@ const path = require('path');
 const crypto = require('crypto');
 const BANK = require('./public/questions.js');
 
-// Falling Objects Live (a separate class activity at /fall/). If it fails to load, Jeopardy keeps working.
-let FALL = null;
-try { FALL = require('./fall/fall.js'); } catch (e) { console.error('Falling Objects Live did not load:', e.message); }
-
 const PORT = process.env.PORT || 3000;
 const MAX_PLAYERS = 20;
 const MAX_GAMES = 300;
@@ -316,10 +312,6 @@ function events(req, res, url) {
 
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, 'http://x');
-  if (FALL) {
-    try { if (FALL.handle(req, res, url)) return; }
-    catch (e) { console.error('[fall]', e); if (!res.headersSent) { res.writeHead(500, { 'Content-Type': 'text/plain' }); res.end('Something went wrong.'); } return; }
-  }
   if (req.method === 'GET' && STATIC[url.pathname]) {
     const [file, type] = STATIC[url.pathname];
     fs.readFile(path.join(__dirname, 'public', file), (err, data) => {

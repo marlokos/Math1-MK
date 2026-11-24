@@ -1,5 +1,5 @@
 // Falling Objects Live: the activity's steps, prompts and answer key.
-// This file stays on the server. Students never receive the answers until the teacher reveals them.
+// The page loads this file in every browser, so the answer key is readable in the page source.
 //
 // Step kinds:
 //   info  - content only, no student response
@@ -8,6 +8,7 @@
 //   num   - one or more number blanks; each field has `ans` and an optional `tol` (tolerance)
 //   text  - a short written response, shown anonymously on the teacher screen
 
+(function () {
 /* ---------- small drawing helpers ---------- */
 function miniGraph(fn, opts = {}) {
   // fn maps u in [0,1] to v in [0,1]; draws on a 0..1 square
@@ -275,4 +276,7 @@ const steps = [
   },
 ];
 
-module.exports = { title: 'Falling Objects', parts, steps };
+const ACTIVITY = { title: 'Falling Objects', parts, steps };
+if (typeof module !== 'undefined' && module.exports) module.exports = ACTIVITY;
+else window.FALL_ACTIVITY = ACTIVITY;
+})();

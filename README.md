@@ -104,7 +104,11 @@ Keep 5 categories with 5 clues each. Upload the changed file to your host to upd
 
 # Falling Objects Live
 
-A second class activity runs on the same server at **`/fall/`** (for example `https://your-game.onrender.com/fall/`). It takes about 50 minutes and builds in four parts:
+A teacher-driven class activity that runs from GitHub Pages, using the same Firebase database as Math 1 Linear Jeopardy:
+
+**https://marlokos.github.io/Math1-MK/fall/**
+
+It takes about 50 minutes and builds in four parts:
 
 | Part | Steps | Time | Learning goal |
 | --- | --- | --- | --- |
@@ -115,26 +119,25 @@ A second class activity runs on the same server at **`/fall/`** (for example `ht
 
 ## Running it
 
-1. On the projector computer, open the server address followed by `/fall/` and choose **Start a class session**. A 4-letter code appears.
-2. Students open the same address on their own devices, choose **Join class**, and type the code and their **first name**. Names show on the lobby screen while students join, and nowhere on the board after that.
+1. On the projector computer, open the link above and choose **Start a class session**. A 4-letter code appears.
+2. Students open the same link on their own devices, choose **Join class**, and type the code and their **first name**. Names show on the lobby screen while students join, and nowhere on the board after that.
 3. Choose **Start the activity**. You control which step everyone sees with **Next**, **Back**, the numbered dots, or the ← → arrow keys. Each step shows a suggested time and a timer.
 4. Students answer on their devices. The board shows how many have answered.
    - **Show responses** puts the class's answers on the board without names: bar charts for multiple choice, grouped answers for number questions, the most common answer in each blank for the table, and anonymous cards for written answers.
    - Tap **×** on a written answer to hide it from the board.
    - **Reveal answer** (or **Show takeaway** on prediction and writing steps) shows the answer and explanation on the board, closes answers for that step, and tells each student whether they were right.
-5. **Class list** (keep it off the projector) shows who has joined, who has answered the current step, and lets you remove a name. It also has **Download answers (CSV)**, a spreadsheet of every student's answers with a score for the 13 auto-checked questions.
-6. **End session** when you're done. Download the CSV first: sessions are kept in memory only and are gone after they end, after the server restarts, or after 6 hours of no activity.
+5. **Class list** (keep it off the projector) shows who has joined and who has answered the current step, and lets you remove a name.
+6. **End session** when you're done. It deletes the session and its answers from the database.
+
+If the teacher's page reloads, open the link again and choose **Return to the session I'm running**. Students who reload choose **Rejoin**.
 
 ## Changing the questions
 
-Everything is in `fall/activity.js`, including the answer key. That file stays on the server, and students only receive an answer after you reveal it. (This repository is public, so the file itself is readable on GitHub.)
+Everything is in `fall/activity.js`: prompts, choices, answers and explanations. The page loads this file in the browser, so a student who views the page source could find the answers.
 
 ## Files
 
 | File | What it is |
 | --- | --- |
-| `fall/fall.js` | The activity's server code, loaded by `server.js` |
+| `fall/index.html` | The teacher and student page, including the Firebase settings |
 | `fall/activity.js` | Steps, prompts, answers and explanations |
-| `fall/index.html` | The teacher and student page |
-
-GitHub Pages also serves `fall/index.html`, but live sessions only work from the Node server. Opened from GitHub Pages, the page says so.
