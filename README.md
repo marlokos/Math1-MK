@@ -134,7 +134,7 @@ If the teacher's page reloads, open the link again and choose **Return to the se
 
 ## Changing the questions
 
-Everything is in `fall/activity.js`: prompts, choices, answers and explanations. (The folder is still called `fall` so the link stays the same.) The page loads this file in the browser, so a student who views the page source could find the answers.
+Everything is in `fall/activity.js`: prompts, choices, answers and explanations. (The folder is still called `fall` so the link stays the same.) After editing it, change the `?v=` number on the `activity.js` line in `fall/index.html` so browsers load the new version. The page loads this file in the browser, so a student who views the page source could find the answers.
 
 ## Files
 
