@@ -54,9 +54,9 @@ body{font-family:var(--f-body);font-size:16px;line-height:1.5}
 .mast{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;background:var(--panel);border-bottom:1px solid var(--line)}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:31;background:var(--panel)}
 .mast-in{max-width:1200px;margin:0 auto;display:flex;flex-wrap:wrap;align-items:center;gap:8px 18px;
-  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:10px}
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:6px}
 .brand{font-family:var(--f-display);font-size:22px;color:var(--red);line-height:1;margin:0;margin-right:auto}
-.brand small{display:block;font-family:var(--f-body);font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:4px}
+.brand small{display:block;font-size:11px!important;margin-top:2px!important;font-family:var(--f-body);font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:4px}
 .tabs{display:flex;gap:6px;flex-wrap:wrap}
 .tab{border:2px solid var(--line);background:transparent;border-radius:999px;padding:8px 14px;font-weight:700;font-size:14px;color:var(--ink);display:flex;gap:8px;align-items:center}
 .tab b{font-family:var(--f-display);font-weight:400;font-size:15px;color:var(--red)}
@@ -64,6 +64,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .tab[aria-selected="true"] b{color:var(--bg)}
 .tab:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
 #partB .station{scroll-margin-top:72px}
+#partA .eyebrow,#partB .eyebrow{display:none}
 
 #partA .page{max-width:1200px;margin:0 auto;display:flex;flex-direction:column;gap:18px;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px}
@@ -191,6 +192,37 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 #partA .guide-body ol,#partA .guide-body ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
 #partA .key{font-family:var(--f-mono);font-size:15px}
 @media (prefers-reduced-motion:reduce){}
+#partA .page{gap:12px;padding-block:12px 40px}
+#partA .top{align-items:center;gap:8px 24px}
+#partA .eyebrow{font-size:11px}
+#partA .ptitle{font-size:clamp(26px,3vw,38px)}
+#partA .lede{font-size:14.5px;line-height:1.45;max-width:92ch;margin:0}
+#partA .ticket{flex:0 1 auto;flex-direction:row;flex-wrap:wrap;align-items:center;gap:6px 12px;padding:8px 12px}
+#partA .ticket .num{font-size:24px}
+#partA .ticket .hint{display:none}
+#partA .graph{min-height:0;padding:10px 12px;gap:6px}
+#partA .receipt{display:flex;flex-direction:column;min-height:0;padding:10px 12px 8px}
+#partA .tape{flex:1 1 0;min-height:0;max-height:none}
+@media (max-width:1000px){#partA .tape{flex:none;max-height:360px}}
+#partA .stage{grid-template-columns:minmax(0,3fr) minmax(0,6fr) minmax(0,3fr);gap:12px;align-items:stretch}
+@media (max-width:1000px){#partA .stage{grid-template-columns:1fr 1fr}
+#partA .stage .receipt{grid-column:1/-1}}
+@media (max-width:640px){#partA .stage{grid-template-columns:1fr}}
+#partA .station{gap:8px;padding:10px 12px;min-height:0}
+#partA .cups{flex:1 1 auto;min-height:0}
+#partA .cupcol{min-height:0}
+#partA .cupcol svg{flex:1 1 auto;min-height:0;height:100%;max-height:250px}
+#partA .read{font-size:clamp(18px,2vw,24px)}
+#partA .clock .t{font-size:clamp(22px,2.4vw,30px)}
+#partA .station .note{display:none}
+#partA .station .btn{padding:8px 12px;font-size:14px}
+#partA .station .btn.alt{padding:6px 10px}
+#partA #a-plot{flex:1 1 auto;min-height:0;height:100%}
+#partA .work{grid-template-columns:1fr}
+#partA .chip{white-space:nowrap;font-size:12px;padding:2px 8px}
+#partA .seg label{padding:4px 10px;font-size:13px}
+#partA .graph-head h2{font-size:19px}
+#partA .ptitle{font-size:clamp(24px,2.6vw,34px)}
 #partB .page{max-width:1200px;margin:0 auto;display:flex;flex-direction:column;gap:18px;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px}
 #partB button,#partB input,#partB select{font:inherit;color:inherit}
@@ -323,6 +355,39 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 #partB .key{font-family:var(--f-mono);font-size:15px}
 @media (prefers-reduced-motion:reduce){#partB .person,#partB .person .leg{animation:none}
 #partB .night{transition:none}}
+#partB .page{gap:12px;padding-block:12px 40px}
+#partB .top{align-items:center;gap:8px 24px}
+#partB .eyebrow{font-size:11px}
+#partB .ptitle{font-size:clamp(26px,3vw,38px)}
+#partB .lede{font-size:14.5px;line-height:1.45;max-width:92ch;margin:0}
+#partB .ticket{flex:0 1 auto;flex-direction:row;flex-wrap:wrap;align-items:center;gap:6px 12px;padding:8px 12px}
+#partB .ticket .num{font-size:24px}
+#partB .ticket .hint{display:none}
+#partB .graph{min-height:0;padding:10px 12px;gap:6px}
+#partB .receipt{display:flex;flex-direction:column;min-height:0;padding:10px 12px 8px}
+#partB .tape{flex:1 1 0;min-height:0;max-height:none}
+@media (max-width:1000px){#partB .tape{flex:none;max-height:360px}}
+#partB .stage{gap:12px}
+#partB .station{gap:8px;padding:10px 12px}
+#partB .scene{height:clamp(110px,16vh,190px)}
+#partB .bldg{bottom:30px;height:calc(100% - 40px);max-height:150px}
+#partB .awning{top:20%;height:18%;min-height:14px}
+#partB .sign{font-size:13px;top:3px;padding:1px 10px}
+#partB .win{height:50%}
+#partB .door{height:60%;width:38px}
+#partB .sidewalk{height:30px}
+#partB .person{bottom:2px}
+#partB .lc{padding:6px 10px}
+#partB .strip .btn{padding:8px 14px;font-size:14px}
+#partB .strip .btn.alt{padding:6px 12px}
+#partB #b-plot{flex:1 1 auto;min-height:0;height:100%;max-height:none}
+#partB .sw.hot{background:var(--hot);opacity:1}
+#partB .graph-head{align-items:center}
+#partB .graph-head h2{font-size:19px}
+#partB #resNote{margin:0}
+#partB .scene{height:clamp(96px,15vh,190px)}
+#partB .ptitle{font-size:clamp(24px,2.6vw,34px)}
+#partB .legend{gap:4px 12px}
 </style>
 <header class="mast"><div class="mast-in">
   <p class="brand">Fast Food Math<small>Math 1 · Linear functions &amp; regression</small></p>
@@ -339,7 +404,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
     <div class="intro">
       <div class="eyebrow">Part A · Linear functions</div>
       <h2 class="ptitle">Soda Fountain Race</h2>
-      <p class="lede">Two 64 oz cups sit under the fountains at the drink station. <b class="a">Cup A (cola)</b> starts with a big scoop of ice. <b class="b">Cup B (orange soda)</b> has less ice, but its fountain pours faster. A sensor in each cup reports the ounces inside, ice included, once every second for 30 seconds.</p>
+      <p class="lede">Two 64 oz cups sit under the fountains at the drink station. <b class="a">Cup A (cola)</b> starts with a big scoop of ice. <b class="b">Cup B (orange soda)</b> has less ice, but its fountain pours faster. A sensor in each cup reports the ounces inside, ice included, every second for 30 seconds.</p>
     </div>
     <div class="ticket" aria-label="Data set">
       <div><div class="k">Order #</div><div class="num" id="a-codeShow">----</div></div>
@@ -380,15 +445,15 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
       </div>
       <svg id="a-plot" viewBox="0 0 640 400" role="img" aria-label="Scatter plot of ounces in each cup against time in seconds"></svg>
     </div>
-  </section>
 
-  <section class="work">
     <div class="receipt">
       <div class="rh"><b>DRINK STATION 4</b><span>SENSOR LOG · ORDER #<span id="a-codeR">----</span></span></div>
       <div class="tape" id="a-tape"><table><thead><tr><th>TIME (s)</th><th>CUP A (oz)</th><th>CUP B (oz)</th></tr></thead><tbody id="a-rows"></tbody></table><p class="empty" id="a-emptyTape">Press <b>Start the pour</b>. A new reading prints every second.</p></div>
       <div class="rf" id="a-rfoot">0 of 31 readings</div>
     </div>
+  </section>
 
+  <section class="work">
     <div class="panel model">
       <div>
         <h2>Model it</h2>
@@ -460,7 +525,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
     <div class="intro">
       <div class="eyebrow">Part B · Scatter plots, correlation &amp; regression</div>
       <h2 class="ptitle">The Regulars</h2>
-      <p class="lede">The restaurant's loyalty app follows 60 members for one week, and together they make 150 visits. Watch the week play out in 30 seconds (about 4 seconds per day) as customers walk in and out the front door. Each walker's tag shows their age. Each dot on the graph is one member, placed at their <b>age</b>. Every time that member walks in, their dot moves up one <b>visit</b>. By Sunday night, do older customers come in more often, or less?</p>
+      <p class="lede">60 loyalty members, one week, 150 visits. Each dot is a member at their <b>age</b> and rises one <b>visit</b> every time they walk in. Do older customers come in more often, or less?</p>
     </div>
     <div class="ticket" aria-label="Data set">
       <div><div class="k">Week #</div><div class="num" id="b-codeShow">----</div></div>
@@ -498,10 +563,11 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
     <div class="panel graph">
       <div class="graph-head">
         <h2>Visits this week vs. age</h2>
-        <div class="legend"><span><i class="sw"></i>Member</span><span><i class="sw ln"></i>Line you're typing</span><span><i class="sw rg"></i>Regression line</span></div>
+        <div class="legend"><span><i class="sw"></i>Member</span><span><i class="sw hot"></i>Just visited</span><span><i class="sw ln"></i>Your line</span><span><i class="sw rg"></i>Regression line</span></div>
+        <button class="btn alt sm" type="button" id="b-resBtn" aria-pressed="false" title="Residuals are the vertical distances from each point to the highlighted line.">Show residuals</button>
       </div>
-      <svg id="b-plot" viewBox="0 0 640 420" role="img" aria-label="Scatter plot of visits this week against member age"></svg>
-      <div class="ctrls"><button class="btn alt sm" type="button" id="b-resBtn" aria-pressed="false">Show residuals</button><p class="note" id="b-resNote">Residuals are the vertical distances from each point to the highlighted line.</p><p class="note">Orange dots just went up. Darker dots mean several members share a point.</p></div>
+      <p class="note" id="b-resNote" hidden></p>
+      <svg id="b-plot" viewBox="0 0 640 420" role="img" aria-label="Scatter plot of visits this week against member age. Darker dots mean several members share a point."></svg>
     </div>
 
     <div class="receipt">
@@ -586,7 +652,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
     document.querySelectorAll('.tab').forEach(t=>t.setAttribute('aria-selected',t.dataset.part===p));
   }
   show(want);
-  window.__show=p=>{show(p);(p==='a'?window.__hashA:window.__hashB)?.();window.scrollTo(0,0);};
+  window.__show=p=>{show(p);(p==='a'?window.__hashA:window.__hashB)?.();window.scrollTo(0,0);(p==='a'?window.__fitA:window.__fitB)?.();};
   document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>window.__show(t.dataset.part)));
 })();
 
@@ -811,6 +877,18 @@ function renderKey(){
    Cup A would reach 64 oz at ${f1((CAP-T.bA)/T.mA)} s`;
 }
 
+
+/* ---------- fit the live area to one screen ---------- */
+function fit(){
+  const st=(typeof ROOT!=='undefined'?ROOT:document).querySelector('.stage');
+  if(!st||!st.getClientRects().length)return;
+  if(innerWidth<=1000){st.style.height='';st.classList.remove('fitted');return;}
+  const top=st.getBoundingClientRect().top+scrollY;
+  st.style.height=Math.max(360,Math.floor(innerHeight-top-12))+'px';st.classList.add('fitted');
+}
+addEventListener('resize',fit);window['__fitA']=fit;fit();
+try{document.fonts.ready.then(fit);}catch(e){}
+
 /* ---------- start ---------- */
 drawCup('cupA','liq-a');drawCup('cupB','liq-b');
 let start=null;
@@ -821,7 +899,7 @@ if(start)load(start.c,start.n);else load(newCode(),false);
 
 (function(){
 const ROOT=document.getElementById('partB');const $=id=>document.getElementById('b-'+id)||document.getElementById(id);
-const DUR=30,XMIN=10,XMAX=80,YMAX=8,N=60,TOTAL=150,CH='BCDFGHJKLMNPQRSTVWXZ';
+const DUR=30,XMIN=0,XMAX=80,YMAX=8,N=60,TOTAL=150,CH='BCDFGHJKLMNPQRSTVWXZ';
 const DAYS=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
 const f1=v=>(Math.round(v*10)/10).toFixed(1),f2=v=>(Math.round(v*100)/100).toFixed(2),f3=v=>(Math.round(v*1000)/1000).toFixed(3);
 const sgn=v=>(v<0?'−':'')+Math.abs(v);
@@ -878,11 +956,12 @@ const full=()=>D.cust.map(c=>[c.age,c.v]);
 function misses(m,b,P){let sse=0,abs=0;P.forEach(([x,y])=>{const e=y-(m*x+b);sse+=e*e;abs+=Math.abs(e);});return {sse,avg:P.length?abs/P.length:0};}
 
 /* ---------- graph ---------- */
-const GW=640,GH=420,ML=50,MR=18,MT=18,MB=48;
+const GW=640,ML=50,MR=18,MT=18,MB=48;let GH=420;
 const GX=x=>ML+(x-XMIN)/(XMAX-XMIN)*(GW-ML-MR),GY=y=>MT+(1-y/YMAX)*(GH-MT-MB);
 function num(id){const v=$(id).value.trim().replace(/[−–]/g,'-');if(v==='')return null;const n=Number(v);return isFinite(n)?n:null;}
 const seg=(m,b,cls,col)=>`<line clip-path="url(#pc)" class="${cls}"${col?` style="stroke:var(${col})"`:''} x1="${GX(XMIN)}" y1="${GY(m*XMIN+b)}" x2="${GX(XMAX)}" y2="${GY(m*XMAX+b)}"/>`;
 function drawPlot(){
+  $('plot').setAttribute('viewBox',`0 0 ${GW} ${GH}`);
   let s=`<defs><clipPath id="pc"><rect x="${ML}" y="${MT}" width="${GW-ML-MR}" height="${GH-MT-MB}"/></clipPath></defs>`;
   for(let x=XMIN;x<=XMAX;x+=5)s+=`<line class="gl" x1="${GX(x)}" x2="${GX(x)}" y1="${GY(0)}" y2="${GY(YMAX)}"/>`;
   for(let x=XMIN;x<=XMAX;x+=10)s+=`<text class="tk" x="${GX(x)}" y="${GY(0)+18}" text-anchor="middle">${x}</text>`;
@@ -943,7 +1022,7 @@ function compareFb(){
 }
 ['tm','tb'].forEach(id=>$(id).addEventListener('input',drawPlot));
 $('resBtn').onclick=()=>{resOn=!resOn;$('resBtn').setAttribute('aria-pressed',resOn);$('resBtn').textContent=resOn?'Hide residuals':'Show residuals';
-  $('resNote').textContent=resOn&&!lines.find(l=>l.id===sel)?'Tap a line in the lab to see its residuals.':'Residuals are the vertical distances from each point to the highlighted line.';drawPlot();};
+  const need=resOn&&!lines.find(l=>l.id===sel);$('resNote').hidden=!need;$('resNote').textContent=need?'Residuals are the vertical distances from each point to a line. Add or tap a line in the lab to see them.':'';drawPlot();};
 
 /* ---------- people ---------- */
 function personSVG(c){
@@ -998,7 +1077,6 @@ function setGo(){
 $('go').onclick=()=>{
   if(done())return;
   if(running){running=false;setGo();return;}
-  if(t===0){try{ROOT.querySelector('.station').scrollIntoView({block:'start',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});}catch(e){}}
   running=true;last=performance.now();setGo();requestAnimationFrame(frame);
 };
 $('skip').onclick=()=>{
@@ -1059,6 +1137,20 @@ function renderKey(){
    Q1 · Weak negative<br>Q2 · −0.4<br>Q3 · About ${f2(R.m*10)} visits per week<br>
    Q4 · About ${f1(R.m*40+R.b)} visits per week<br>Q5 · Not really (weak correlation)`;
 }
+
+
+/* ---------- fit the live area to one screen ---------- */
+function fit(){
+  const st=(typeof ROOT!=='undefined'?ROOT:document).querySelector('.stage');
+  if(!st||!st.getClientRects().length)return;
+  if(innerWidth<=1000){st.style.height='';st.classList.remove('fitted');if(typeof onFit==='function')onFit();return;}
+  const top=st.getBoundingClientRect().top+scrollY;
+  st.style.height=Math.max(260,Math.floor(innerHeight-top-12))+'px';st.classList.add('fitted');
+  if(typeof onFit==='function')onFit();
+}
+function onFit(){const pl=$('plot'),w=pl.clientWidth,h=pl.clientHeight;GH=(w&&h&&pl.closest('.fitted'))?Math.round(Math.min(560,Math.max(240,GW*h/w))):420;drawPlot();}
+addEventListener('resize',fit);window['__fitB']=fit;fit();
+try{document.fonts.ready.then(fit);}catch(e){}
 
 /* ---------- start ---------- */
 let start=null;
