@@ -1,4 +1,5 @@
-// Falling Objects Live: the activity's steps, prompts and answer key.
+// Unit 7 Lesson 2: Comparing Quadratic and Exponential Functions (live class activity).
+// Follows the lesson slides: Bridge, Warm-up, Activities 1–5, a practice problem and the cool-down.
 // The page loads this file in every browser, so the answer key is readable in the page source.
 //
 // Step kinds:
@@ -9,274 +10,329 @@
 //   text  - a short written response, shown anonymously on the teacher screen
 
 (function () {
-/* ---------- small drawing helpers ---------- */
+/* ---------- drawing helpers ---------- */
 function miniGraph(fn, opts = {}) {
-  // fn maps u in [0,1] to v in [0,1]; draws on a 0..1 square
+  // fn maps u in [0,1] to v in [0,1]
   const W = 170, H = 130, x0 = 26, y0 = 108, w = 132, h = 92;
   const pts = [];
-  for (let i = 0; i <= 40; i++) {
-    const u = i / 40, v = fn(u);
-    pts.push(`${(x0 + u * w).toFixed(1)},${(y0 - v * h).toFixed(1)}`);
-  }
+  for (let i = 0; i <= 40; i++) { const u = i / 40, v = fn(u); pts.push(`${(x0 + u * w).toFixed(1)},${(y0 - v * h).toFixed(1)}`); }
   return `<svg class="mini" viewBox="0 0 ${W} ${H}" role="img" aria-label="${opts.aria || 'graph'}">
   <line class="ax" x1="${x0}" y1="${y0}" x2="${x0 + w + 6}" y2="${y0}"/><line class="ax" x1="${x0}" y1="${y0}" x2="${x0}" y2="${y0 - h - 6}"/>
   <text class="axl" x="${x0 + w + 4}" y="${y0 + 16}" text-anchor="end">time (s)</text>
-  <text class="axl" x="${x0 - 6}" y="${y0 - h - 2}" text-anchor="end">h</text>
+  <text class="axl" x="${x0 - 6}" y="${y0 - h - 2}" text-anchor="end">ft</text>
   <text class="axl" x="${x0 - 6}" y="${y0 + 4}" text-anchor="end">0</text>
   <polyline class="cv" points="${pts.join(' ')}"/></svg>`;
 }
 
-function strobe() {
-  // ball dropped from 256 ft, positions each second
-  const H = [256, 240, 192, 112, 0];
-  const top = 22, ground = 290, sc = (ground - top) / 256;
-  const y = h => ground - h * sc;
-  let s = `<svg class="strobe" viewBox="0 0 300 310" role="img" aria-label="A ball dropped from a 256 foot tower, shown at heights 256, 240, 192, 112 and 0 feet after 0 to 4 seconds">`;
-  s += `<rect class="tower" x="28" y="${top}" width="46" height="${ground - top}" rx="2"/>`;
-  for (let k = 0; k < 7; k++) s += `<rect class="win" x="38" y="${top + 16 + k * 36}" width="10" height="14"/><rect class="win" x="54" y="${top + 16 + k * 36}" width="10" height="14"/>`;
-  s += `<line class="gnd" x1="10" y1="${ground}" x2="290" y2="${ground}"/>`;
-  H.forEach((h, t) => {
-    const cy = Math.min(y(h), ground - 8);
-    s += `<circle class="ball" cx="104" cy="${cy.toFixed(1)}" r="8" style="opacity:${(0.45 + t * 0.14).toFixed(2)}"/>`;
-    s += `<line class="tick" x1="116" y1="${cy.toFixed(1)}" x2="132" y2="${cy.toFixed(1)}"/>`;
-    s += `<text class="lab" x="138" y="${(cy + 4).toFixed(1)}">t = ${t} s · ${h} ft</text>`;
+// A building with the rock's position each second (distance fallen from the top).
+function building(total, fell) {
+  const top = 20, ground = 292, sc = (ground - top) / total, y = d => top + d * sc;
+  let s = `<svg class="strobe" viewBox="0 0 300 312" role="img" aria-label="A rock dropped from a ${total}-foot building, shown after each second: ${fell.map((d, t) => `${t} s fell ${d} ft`).join(', ')}">`;
+  s += `<rect class="tower" x="24" y="${top}" width="56" height="${ground - top}" rx="2"/>`;
+  for (let k = 0; k < 8; k++) s += `<rect class="win" x="34" y="${top + 14 + k * 32}" width="12" height="14"/><rect class="win" x="56" y="${top + 14 + k * 32}" width="12" height="14"/>`;
+  s += `<line class="gnd" x1="8" y1="${ground}" x2="292" y2="${ground}"/>`;
+  s += `<line class="tick" x1="104" y1="${top}" x2="104" y2="${ground}" stroke-dasharray="3 4"/>`;
+  let lastLab = -99;
+  fell.forEach((d, t) => {
+    const cy = Math.min(y(d), ground - 7), ly = Math.max(cy + 4, lastLab + 14);
+    lastLab = ly;
+    s += `<circle class="ball" cx="104" cy="${cy.toFixed(1)}" r="6" style="opacity:${(0.4 + t * 0.12).toFixed(2)}"/>`;
+    s += `<line class="tick" x1="112" y1="${cy.toFixed(1)}" x2="120" y2="${(ly - 4).toFixed(1)}"/>`;
+    s += `<text class="lab" x="124" y="${ly.toFixed(1)}">${t} s, fell ${d} ft</text>`;
   });
-  s += `<text class="lab dim" x="51" y="${ground + 16}" text-anchor="middle">256 ft tower</text></svg>`;
+  s += `<text class="lab dim" x="52" y="${ground + 15}" text-anchor="middle">${total} ft</text></svg>`;
   return s;
+}
+
+// Pattern A (n by n squares) and Pattern B (doubling), figures 0-3.
+function patterns() {
+  const u = 16, gap = 24;
+  const grid = (x, y, cols, rows) => { let r = ''; for (let i = 0; i < cols; i++) for (let j = 0; j < rows; j++) r += `<rect class="sq" x="${x + i * u}" y="${y - (j + 1) * u}" width="${u}" height="${u}"/>`; return r; };
+  const panel = (title, figs, ox) => {
+    let s = `<text class="lab" x="${ox + 4}" y="14" font-weight="700">${title}</text>`;
+    let x = ox + 14;
+    figs.forEach(([c, r], n) => {
+      s += grid(x, 90, c, r);
+      s += `<text class="lab dim" x="${x + Math.max(c, 1) * u / 2}" y="108" text-anchor="middle">Fig ${n}</text>`;
+      x += Math.max(c, 1) * u + gap;
+    });
+    return s;
+  };
+  const one = (title, figs, aria) => `<svg class="patterns" viewBox="0 0 250 114" role="img" aria-label="${aria}">${panel(title, figs, 0)}</svg>`;
+  return `<div class="pats">${one('Pattern A', [[0, 0], [1, 1], [2, 2], [3, 3]], 'Pattern A: figure 0 has no squares, figure 1 is 1 by 1, figure 2 is 2 by 2, figure 3 is 3 by 3.')}${one('Pattern B', [[1, 1], [1, 2], [2, 2], [4, 2]], 'Pattern B: figures 0 to 3 have 1, 2, 4 and 8 squares.')}</div>`;
 }
 
 function table(head, rows, cls = '') {
   return `<div class="tblwrap"><table class="dt ${cls}"><thead><tr>${head.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.map(r => `<tr>${r.map(c => `<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
 }
 
-const qx = [0, 1, 2, 3, 4, 5, 6];
-const growTable = table(['x', 'q(x) = 5x²', 'e(x) = 2<sup>x</sup>'], qx.map(x => [x, 5 * x * x, 2 ** x]));
+const ROCK = building(500, [0, 16, 64, 144, 256, 400]);
+const GALILEO = `<p>Galileo Galilei and other scholars studied free-falling objects. Their law: <span class="eq-in">d(t) = 16t²</span> gives the distance fallen in feet after <i>t</i> seconds.</p><p><b>An object is dropped from a height of 576 feet.</b></p>`;
+const ELENA_DIEGO = `<div class="pair">
+  <div><p class="cap">Elena’s table</p>${table(['Time (s)', 'Distance fallen (ft)'], [[0, 0], [1, 16], [2, 64], [3, ''], [4, ''], ['t', '']])}</div>
+  <div><p class="cap">Diego’s table</p>${table(['Time (s)', 'Distance from the ground (ft)'], [[0, 576], [1, 560], [2, 512], [3, ''], [4, ''], ['t', '']])}</div></div>`;
 
 /* ---------- the activity ---------- */
 const parts = [
-  { id: 1, name: 'Which grows faster?' },
-  { id: 2, name: 'Dropping a ball' },
-  { id: 3, name: 'What each part means' },
-  { id: 4, name: 'Write your own' },
+  { id: 1, name: 'Warm-up' },
+  { id: 2, name: 'Which one grows faster?' },
+  { id: 3, name: 'Falling from the sky' },
+  { id: 4, name: 'Galileo and gravity' },
+  { id: 5, name: 'Check your understanding' },
 ];
 
 const steps = [
-  /* ===== Part 1: exponential vs quadratic (14 min) ===== */
+  /* ===== Part 1: Bridge and warm-up (5 min) ===== */
   {
-    id: 'p1-predict', part: 1, minutes: 2, kind: 'poll',
-    title: 'Make a prediction',
-    html: `<p>Here are two functions:</p><p class="eq">q(x) = 5x²&emsp;&emsp;e(x) = 2<sup>x</sup></p><p>Right now, q(5) = 125 and e(5) = 32.</p>`,
-    prompt: 'Which function will have the bigger value when x = 20?',
-    options: ['q(x) = 5x²', 'e(x) = 2<sup>x</sup>', 'They will be about the same'],
-    labels: ['q(x) = 5x²', 'e(x) = 2^x', 'About the same'],
-    explain: 'q(20) = 5 · 400 = 2,000, but e(20) = 2²⁰ = 1,048,576. The exponential function is more than 500 times bigger. Let’s find out why.',
-  },
-  {
-    id: 'p1-aroc', part: 1, minutes: 3, kind: 'num',
-    title: 'Average rate of change',
-    html: growTable + `<p class="hint">Average rate of change = (change in output) ÷ (change in x).</p>`,
-    prompt: 'Find the average rate of change of each function from x = 0 to x = 5.',
+    id: 'bridge', part: 1, minutes: 3, kind: 'num',
+    title: 'Bridge: Fix the mistakes',
+    html: `<p>Noah and Mai evaluated two expressions, and both made mistakes.</p>` +
+      table(['', 'Noah’s work', 'Mai’s work'], [
+        ['Evaluate 5<sup>x</sup> when x is 6', '5<sup>6</sup> = 30', '5<sup>6</sup> = 6 · 6 · 6 · 6 · 6 = 7,776'],
+        ['Evaluate 3 · 6<sup>x</sup> when x is 2', '3 · 6² = 3 · 12 = 36', '3 · 6² = 18² = 324'],
+      ], 'wide'),
+    prompt: 'Evaluate each expression correctly.',
     fields: [
-      { label: 'q(x) = 5x²', ans: 25, tol: 0.001 },
-      { label: 'e(x) = 2<sup>x</sup>', ans: 6.2, tol: 0.001 },
+      { label: '5<sup>x</sup> when x = 6:', ans: 15625 },
+      { label: '3 · 6<sup>x</sup> when x = 2:', ans: 108 },
     ],
-    show: v => `q: ${v[0]}   e: ${v[1]}`,
-    answerText: 'q: 25   e: 6.2',
-    explain: 'q: (125 − 0) ÷ 5 = 25.  e: (32 − 1) ÷ 5 = 31 ÷ 5 = 6.2. Over this interval the quadratic is growing faster.',
+    show: v => `5⁶ = ${v[0]}   3·6² = ${v[1]}`,
+    answerText: '5⁶ = 15,625   3 · 6² = 108',
+    explain: '5⁶ means six factors of 5: 5 · 5 · 5 · 5 · 5 · 5 = 15,625. Noah multiplied 5 · 6, and Mai used five factors of 6. For 3 · 6², the exponent applies only to the 6: 6² = 36, then 3 · 36 = 108. Noah doubled 6 instead of squaring it, and Mai multiplied 3 · 6 before squaring.',
   },
   {
-    id: 'p1-pattern', part: 1, minutes: 3, kind: 'mc',
-    title: 'Look for the pattern',
-    html: growTable + `<p class="hint">Look at how each column changes from one row to the next. Try subtracting, then subtracting again. Try dividing.</p>`,
-    prompt: 'Which statement is true?',
-    options: [
-      'q(x) has constant <b>second differences</b> (always 10), and e(x) has a constant <b>ratio</b> (always × 2).',
-      'Both functions have constant first differences.',
-      'q(x) has a constant ratio, and e(x) has constant second differences.',
-      'Neither function has a pattern.',
-    ],
-    labels: ['q: 2nd diff 10; e: ratio ×2', 'Both constant 1st diff', 'q ratio; e 2nd diff', 'No pattern'],
+    id: 'order', part: 1, minutes: 2, kind: 'mc',
+    title: 'Warm-up: Least to greatest',
+    html: `<p class="eq">Ⓐ 2¹⁰&emsp;Ⓑ 10²&emsp;Ⓒ 2⁹&emsp;Ⓓ 9²</p><p class="hint">Don’t evaluate each one. Think about the structure.</p>`,
+    prompt: 'Which list puts these quantities in order from least to greatest?',
+    options: ['D, B, C, A', 'B, D, C, A', 'D, B, A, C', 'C, A, D, B'],
     correct: 0,
-    explain: 'q(x): 5, 15, 25, 35, 45 are the first differences, and they grow by 10 each time. e(x) doubles every step. Adding a growing amount is quadratic growth. Multiplying by the same number is exponential growth.',
-  },
-  {
-    id: 'p1-overtake', part: 1, minutes: 3, kind: 'num',
-    title: 'When does it pass?',
-    html: growTable + `<p class="hint">Keep the tables going past x = 6, or graph both functions in Desmos.</p>`,
-    prompt: 'For x = 1, 2, 3, …, what is the first whole number x where e(x) is greater than q(x)?',
-    fields: [{ label: 'x =', ans: 9 }],
-    show: v => `x = ${v[0]}`,
-    answerText: 'x = 9',
-    explain: 'x = 8: e = 256, q = 320, so q is still ahead. x = 9: e = 512, q = 405. From then on e(x) stays ahead, and the gap keeps getting bigger.',
-  },
-  {
-    id: 'p1-why', part: 1, minutes: 3, kind: 'text',
-    title: 'Explain it',
-    html: `<p class="eq">q(x) = 5x²&emsp;&emsp;e(x) = 2<sup>x</sup></p>`,
-    prompt: 'Explain why the exponential function eventually passes the quadratic function, even though the quadratic started out ahead.',
-    explain: 'A quadratic’s change grows by the same amount each step (+10, +10, +10). An exponential’s change grows by the same factor each step (×2). Repeated multiplying eventually beats repeated adding, so an increasing exponential function always passes a quadratic one eventually.',
+    explain: '9² < 10² because 9 < 10. 2⁹ < 2¹⁰ because 2¹⁰ is 2⁹ doubled. And 2⁹ is already bigger than 10², since 2⁹ = 2 · 2⁸ and 2⁸ = 256. So the order is 9², 10², 2⁹, 2¹⁰ (81, 100, 512, 1,024).',
   },
 
-  /* ===== Part 2: free fall with tables and graphs (14 min) ===== */
+  /* ===== Part 2: Activities 1 and 2 (15 min) ===== */
   {
-    id: 'p2-launch', part: 2, minutes: 2, kind: 'info',
-    title: 'A ball is dropped',
-    html: `<div class="split"><div>${strobe()}</div><div><p>A ball is dropped from the top of a 256‑foot tower.</p><p>Ignoring air resistance, the <b>distance the ball has fallen</b> after <i>t</i> seconds is</p><p class="eq">d(t) = 16t² feet</p><p>The picture shows where the ball is every second.</p></div></div>`,
-    prompt: 'Talk with a partner: what do you notice about the gaps between the balls? What does that tell you about the ball’s speed?',
+    id: 'a1-predict', part: 2, minutes: 2, kind: 'poll',
+    title: 'Activity 1: Which one grows faster?',
+    html: patterns() + `<ul class="facts"><li>In <b>pattern A</b>, the length and width of the rectangle grow by one small square from each figure to the next.</li><li>In <b>pattern B</b>, the number of small squares doubles from each figure to the next.</li></ul>`,
+    prompt: 'Predict: which pattern will have more small squares in figure 10?',
+    options: ['Pattern A', 'Pattern B', 'They will have the same number'],
+    explain: 'Figure 10 of pattern A has 10 · 10 = 100 squares. Figure 10 of pattern B has 2¹⁰ = 1,024 squares. Pattern B has more than ten times as many.',
   },
   {
-    id: 'p2-table', part: 2, minutes: 4, kind: 'num',
-    title: 'Fill in the table',
-    html: `<p>The ball falls <span class="eq-in">16t²</span> feet in <i>t</i> seconds, starting from 256 feet.</p>`,
-    prompt: 'Complete the table.',
+    id: 'a1-table', part: 2, minutes: 5, kind: 'num',
+    title: 'Complete the tables',
+    html: patterns() + `<p>f(n) is the number of small squares in figure n of pattern A. g(n) is the number in pattern B.</p>`,
+    prompt: 'Fill in the missing values.',
     table: {
-      head: ['t (seconds)', 'Distance fallen (ft)', 'Height above ground (ft)'],
-      rows: [['0', '0', '256'], ['1', { f: 0 }, { f: 4 }], ['2', { f: 1 }, { f: 5 }], ['3', { f: 2 }, { f: 6 }], ['4', { f: 3 }, { f: 7 }]],
+      head: ['n, figure number', 'f(n), pattern A', 'g(n), pattern B'],
+      rows: [['0', '0', '1'], ['1', '1', '2'], ['2', '4', '4'], ['3', '9', '8'], ['4', { f: 0 }, { f: 3 }], ['5', { f: 1 }, { f: 4 }], ['8', { f: 2 }, { f: 5 }]],
     },
     fields: [
-      { label: 'distance at t = 1', ans: 16 }, { label: 'distance at t = 2', ans: 64 }, { label: 'distance at t = 3', ans: 144 }, { label: 'distance at t = 4', ans: 256 },
-      { label: 'height at t = 1', ans: 240 }, { label: 'height at t = 2', ans: 192 }, { label: 'height at t = 3', ans: 112 }, { label: 'height at t = 4', ans: 0 },
+      { label: 'f(4)', ans: 16 }, { label: 'f(5)', ans: 25 }, { label: 'f(8)', ans: 64 },
+      { label: 'g(4)', ans: 16 }, { label: 'g(5)', ans: 32 }, { label: 'g(8)', ans: 256 },
     ],
-    answerText: 'Distance: 16, 64, 144, 256.  Height: 240, 192, 112, 0.',
-    explain: 'Distance fallen is 16t²: 16(1)² = 16, 16(2)² = 64, 16(3)² = 144, 16(4)² = 256. Height is 256 minus the distance fallen. At t = 4 the height is 0, so the ball hits the ground after 4 seconds.',
+    answerText: 'f: 16, 25, 64.  g: 16, 32, 256.',
+    explain: 'Pattern A is an n by n square, so f(n) = n²: 4² = 16, 5² = 25, 8² = 64. Pattern B doubles each time starting from 1, so g(n) = 2ⁿ: 2⁴ = 16, 2⁵ = 32, 2⁸ = 256. The patterns are equal at n = 4, then pattern B pulls ahead.',
   },
   {
-    id: 'p2-graph', part: 2, minutes: 3, kind: 'mc',
-    title: 'Pick the graph',
-    html: `<p>Use your table: heights 256, 240, 192, 112, 0 at t = 0, 1, 2, 3, 4.</p>`,
-    prompt: 'Which graph shows the ball’s height over time?',
+    id: 'a1-eq', part: 2, minutes: 2, kind: 'mc',
+    title: 'Write the equations',
+    html: patterns(),
+    prompt: 'Which equations represent the two patterns, and what type is each function?',
     options: [
-      `<span class="gl">A</span>${miniGraph(u => 1 - u, { aria: 'Graph A: a straight line going down' })}`,
-      `<span class="gl">B</span>${miniGraph(u => 1 - (u * u), { aria: 'Graph B: a curve that starts flat and gets steeper going down' })}`,
-      `<span class="gl">C</span>${miniGraph(u => (1 - u) * (1 - u), { aria: 'Graph C: a curve that starts steep and flattens out going down' })}`,
-      `<span class="gl">D</span>${miniGraph(u => u * u, { aria: 'Graph D: a curve going up and getting steeper' })}`,
+      'A: f(n) = n² (quadratic)<br>B: g(n) = 2ⁿ (exponential)',
+      'A: f(n) = 2n (linear)<br>B: g(n) = n² (quadratic)',
+      'A: f(n) = n² (quadratic)<br>B: g(n) = 2n (linear)',
+      'A: f(n) = 2ⁿ (exponential)<br>B: g(n) = n² (quadratic)',
     ],
-    labels: ['A (straight line down)', 'B (flat, then steeper)', 'C (steep, then flatter)', 'D (going up)'],
+    labels: ['A n² quad, B 2ⁿ exp', 'A 2n lin, B n² quad', 'A n² quad, B 2n lin', 'A 2ⁿ exp, B n² quad'],
+    correct: 0,
+    explain: 'Pattern A’s length and width are both n, so f(n) = n², a quadratic function. Pattern B starts at 1 and doubles each time, so g(n) = 2ⁿ, an exponential function.',
+  },
+  {
+    id: 'a1-factor', part: 2, minutes: 2, kind: 'num',
+    title: 'Growth factors',
+    html: table(['n', 'f(n) = n²', 'growth factor', 'g(n) = 2ⁿ', 'growth factor'], [
+      [2, 4, '4 ÷ 1 = 4', 4, '4 ÷ 2 = 2'], [3, 9, '9 ÷ 4 = 2.25', 8, '8 ÷ 4 = 2'], [4, 16, '16 ÷ 9 ≈ 1.78', 16, '16 ÷ 8 = 2'],
+      [5, 25, '25 ÷ 16 ≈ 1.56', 32, '32 ÷ 16 = 2'], [7, 49, '', 128, ''], [8, 64, '?', 256, '?']]),
+    prompt: 'Find each growth factor from n = 7 to n = 8. Round to 2 decimal places.',
+    fields: [
+      { label: 'f: 64 ÷ 49 ≈', ans: 1.31, tol: 0.006 },
+      { label: 'g: 256 ÷ 128 =', ans: 2 },
+    ],
+    show: v => `f: ${v[0]}   g: ${v[1]}`,
+    answerText: 'f: 1.31   g: 2',
+    explain: 'The quadratic’s growth factor keeps shrinking (4, 2.25, 1.78, 1.56, … 1.31). The exponential’s growth factor is always 2. That is why the exponential eventually grows faster.',
+  },
+  {
+    id: 'a1-compare', part: 2, minutes: 1, kind: 'text',
+    title: 'If they keep growing',
+    html: patterns(),
+    prompt: 'How would the two patterns compare if they continue to grow? Make one or two observations.',
+    explain: 'Both start close together, and they’re equal at n = 4. After that, pattern B pulls further ahead every step, because it is always multiplied by 2 while pattern A’s growth factor gets closer and closer to 1.',
+  },
+  {
+    id: 'a2', part: 2, minutes: 3, kind: 'num',
+    title: 'Activity 2: Two more functions',
+    html: `<p class="eq">p(x) = 6x²&emsp;&emsp;q(x) = 3<sup>x</sup></p><p>Investigate the outputs of p and q for different values of x. A table or Desmos can help.</p>`,
+    prompt: 'For x = 1, 2, 3, …, what is the first whole number x where q(x) is greater than p(x)?',
+    fields: [{ label: 'x =', ans: 5 }],
+    show: v => `x = ${v[0]}`,
+    answerText: 'x = 5',
+    explain: 'At x = 4, p = 96 and q = 81. At x = 5, p = 150 and q = 243. From then on q stays ahead: q is always multiplied by 3, while p’s growth factor keeps shrinking toward 1. So the exponential function q eventually has the greater value.',
+  },
+
+  /* ===== Part 3: Activities 3 and 4 (12 min) ===== */
+  {
+    id: 'a3', part: 3, minutes: 2, kind: 'text',
+    title: 'Activity 3: A numerical pattern',
+    html: table(['x', '0', '1', '2', '3', '4', '5'], [['y', '0', '16', '64', '144', '256', '400']], 'wide'),
+    prompt: 'What do you notice? What do you wonder?',
+    explain: 'Every y-value is a multiple of 16, and the gaps between them keep growing (16, 48, 80, 112, 144). We’ll see where these numbers come from next.',
+  },
+  {
+    id: 'a4-same', part: 3, minutes: 2, kind: 'mc',
+    title: 'Activity 4: Falling from the sky',
+    html: `<div class="split"><div>${ROCK}</div><div><p>A rock is dropped from the top floor of a 500-foot tall building. A camera captures the distance the rock has traveled, in feet, after each second.</p></div></div>`,
+    prompt: 'Does the rock fall the same distance every second?',
+    options: ['Yes, it falls 16 feet every second', 'No, it falls farther each second', 'No, it falls less each second'],
+    labels: ['Yes, 16 ft each second', 'No, farther each second', 'No, less each second'],
+    correct: 1,
+    explain: 'In each second it falls 16, 48, 80, 112 and 144 feet. The distance per second grows by 32 each time, so the rock is speeding up.',
+  },
+  {
+    id: 'a4-six', part: 3, minutes: 3, kind: 'num',
+    title: 'After 6 seconds',
+    html: `<div class="split"><div>${ROCK}</div><div><p>A rock is dropped from the top floor of a 500-foot tall building.</p><p class="hint">“After 6 seconds, I think the rock will have fallen ___ feet because I noticed that…”</p></div></div>`,
+    prompt: 'Following the pattern, how far will the rock have fallen after 6 seconds?',
+    fields: [{ label: 'Distance fallen:', ans: 576, post: ' ft' }],
+    show: v => `${v[0]} ft`,
+    answerText: '576 ft',
+    explain: 'The distance fallen each second grows by 32: 16, 48, 80, 112, 144, then 176. So 400 + 176 = 576 feet, which is also 16 · 6². But the building is only 500 feet tall, so this rock would actually hit the ground before 6 seconds.',
+  },
+  {
+    id: 'a4-seven', part: 3, minutes: 2, kind: 'num',
+    title: 'Jada’s observation',
+    html: `<p>Jada noticed that the distances fallen are all multiples of 16:</p><p class="eq">16 = 16 · 1&emsp;64 = 16 · 4&emsp;144 = 16 · 9<br>256 = 16 · 16&emsp;400 = 16 · 25</p><p>Then she noticed that 1, 4, 9, 16 and 25 are 1², 2², 3², 4² and 5².</p>`,
+    prompt: 'Use Jada’s observations to predict the distance fallen from an even taller building after 7 seconds.',
+    fields: [{ label: 'Distance fallen:', ans: 784, post: ' ft' }],
+    show: v => `${v[0]} ft`,
+    answerText: '784 ft',
+    explain: 'Following Jada’s pattern, the distance after t seconds is 16 · t². After 7 seconds: 16 · 7² = 16 · 49 = 784 feet.',
+  },
+  {
+    id: 'a4-eq', part: 3, minutes: 3, kind: 'mc',
+    title: 'Write the equation',
+    html: `<p>Use Jada’s observations. Let <i>d</i> be the distance fallen in feet after <i>t</i> seconds.</p>` + table(['t (s)', '0', '1', '2', '3', '4', '5'], [['d (ft)', '0', '16', '64', '144', '256', '400']], 'wide'),
+    prompt: 'Which equation represents this function?',
+    options: ['d = 16t', 'd = 16t²', 'd = 16 · 2<sup>t</sup>', 'd = t² + 16'],
+    labels: ['d = 16t', 'd = 16t²', 'd = 16 · 2^t', 'd = t² + 16'],
+    correct: 1,
+    explain: 'd = 16t². Check: at t = 3, 16 · 9 = 144. The t² makes this a quadratic function. It isn’t exponential: the outputs aren’t multiplied by the same factor each second (64 ÷ 16 = 4, but 144 ÷ 64 = 2.25).',
+  },
+
+  /* ===== Part 4: Activity 5 (12 min) ===== */
+  {
+    id: 'a5-half', part: 4, minutes: 2, kind: 'num',
+    title: 'Activity 5: Galileo and gravity',
+    html: GALILEO,
+    prompt: 'Evaluate d(0.5).',
+    fields: [{ label: 'd(0.5) =', ans: 4 }],
+    show: v => `d(0.5) = ${v[0]}`,
+    answerText: 'd(0.5) = 4',
+    explain: 'd(0.5) = 16 · 0.5² = 16 · 0.25 = 4. It means that half a second after the object is dropped, it has fallen 4 feet.',
+  },
+  {
+    id: 'a5-alike', part: 4, minutes: 2, kind: 'text',
+    title: 'Elena’s and Diego’s tables',
+    html: GALILEO + `<p>To find where the object is in the first few seconds, Elena and Diego made different tables.</p>` + ELENA_DIEGO,
+    prompt: 'How are the two tables alike? How are they different?',
+    explain: 'Both tables use the same times and the same falling object. Elena’s table shows how far the object has fallen (it starts at 0 and increases). Diego’s table shows its height above the ground (it starts at 576 and decreases). At every time, the two values add up to 576.',
+  },
+  {
+    id: 'a5-complete', part: 4, minutes: 4, kind: 'num',
+    title: 'Complete the tables',
+    html: GALILEO,
+    prompt: 'Complete Elena’s and Diego’s tables for 3 and 4 seconds.',
+    table: {
+      head: ['Time (s)', 'Elena: distance fallen (ft)', 'Diego: distance from the ground (ft)'],
+      rows: [['0', '0', '576'], ['1', '16', '560'], ['2', '64', '512'], ['3', { f: 0 }, { f: 2 }], ['4', { f: 1 }, { f: 3 }]],
+    },
+    fields: [
+      { label: 'Elena at 3 s', ans: 144 }, { label: 'Elena at 4 s', ans: 256 },
+      { label: 'Diego at 3 s', ans: 432 }, { label: 'Diego at 4 s', ans: 320 },
+    ],
+    answerText: 'Elena: 144, 256.  Diego: 432, 320.',
+    explain: 'Elena uses d(t) = 16t²: 16 · 9 = 144 and 16 · 16 = 256. Diego subtracts the distance fallen from the starting height: 576 − 144 = 432 and 576 − 256 = 320.',
+  },
+  {
+    id: 'a5-expr', part: 4, minutes: 2, kind: 'mc',
+    title: 'The t row',
+    html: GALILEO + ELENA_DIEGO,
+    prompt: 'Which expressions belong in the last row (time t) of each table?',
+    options: [
+      'Elena: 16t²&emsp;Diego: 576 − 16t²',
+      'Elena: 576 − 16t²&emsp;Diego: 16t²',
+      'Elena: 16t²&emsp;Diego: 16t² − 576',
+      'Elena: 16t&emsp;Diego: 576 − 16t',
+    ],
+    labels: ['16t² and 576 − 16t²', '576 − 16t² and 16t²', '16t² and 16t² − 576', '16t and 576 − 16t'],
+    correct: 0,
+    explain: 'Elena’s table is the distance fallen, 16t². Diego’s table is the height: start at 576 and subtract the distance fallen, 576 − 16t². In Diego’s function, 576 is the starting height and −16t² is the distance the object has fallen.',
+  },
+  {
+    id: 'a5-graph', part: 4, minutes: 2, kind: 'mc',
+    title: 'Graph the height',
+    html: GALILEO,
+    prompt: 'Which graph shows Diego’s function, the object’s distance from the ground over time?',
+    options: [
+      `<span class="gl">A</span>${miniGraph(u => u * u, { aria: 'Graph A: starts at 0 and curves up, getting steeper' })}`,
+      `<span class="gl">B</span>${miniGraph(u => 1 - u * u, { aria: 'Graph B: starts high, flat at first, then curves down more steeply to 0' })}`,
+      `<span class="gl">C</span>${miniGraph(u => 1 - u, { aria: 'Graph C: a straight line going down to 0' })}`,
+      `<span class="gl">D</span>${miniGraph(u => (1 - u) * (1 - u), { aria: 'Graph D: starts high and steep, then flattens out near 0' })}`,
+    ],
+    labels: ['A (curves up from 0)', 'B (flat, then steeper down)', 'C (straight line down)', 'D (steep, then flatter)'],
     grid: true,
     correct: 1,
-    explain: 'Graph B. The height drops slowly at first (only 16 ft in the first second) and then faster and faster (112 ft in the last second). So the curve starts flat at 256 and gets steeper until it reaches 0 at t = 4.',
+    explain: 'Graph B. It starts at 576 when t = 0 and decreases slowly at first, then faster and faster, reaching 0 at t = 6 (576 − 16 · 36 = 0). Graph A is Elena’s distance fallen. Neither graph is the path of the object: the object falls straight down.',
   },
+
+  /* ===== Part 5: Practice and cool-down (6 min) ===== */
   {
-    id: 'p2-rate', part: 2, minutes: 3, kind: 'num',
-    title: 'How fast is it falling?',
-    html: table(['t (s)', '0', '1', '2', '3', '4'], [['Height (ft)', '256', '240', '192', '112', '0']], 'wide'),
-    prompt: 'Find the average rate of change of the height (in feet per second) over each interval.',
-    fields: [
-      { label: 't = 0 to t = 1', ans: -16, post: ' ft/s' },
-      { label: 't = 3 to t = 4', ans: -112, post: ' ft/s' },
+    id: 'p10', part: 5, minutes: 2, kind: 'mc',
+    title: 'Practice: Diego’s claim',
+    html: `<p>Diego claimed that <span class="eq-in">10 + x²</span> is always greater than <span class="eq-in">2<sup>x</sup></span> and used this table as evidence.</p>` +
+      table(['x', '10 + x²', '2<sup>x</sup>'], [[1, 11, 2], [2, 14, 4], [3, 19, 8], [4, 26, 16]]),
+    prompt: 'Do you agree with Diego?',
+    options: [
+      'Agree. The table shows 10 + x² is greater every time.',
+      'Disagree. When x = 6, 10 + x² is 46, but 2<sup>x</sup> is 64.',
+      'Agree. Quadratic functions always grow faster than exponential functions.',
+      'Disagree. When x = 4, 2<sup>x</sup> is already greater.',
     ],
-    show: v => `0→1: ${v[0]}   3→4: ${v[1]}`,
-    answerText: '0→1: −16 ft/s   3→4: −112 ft/s',
-    explain: '(240 − 256) ÷ 1 = −16 ft/s and (0 − 112) ÷ 1 = −112 ft/s. The rates are negative because the height is going down. The ball is falling 7 times faster in the last second than in the first.',
-  },
-  {
-    id: 'p2-type', part: 2, minutes: 2, kind: 'mc',
-    title: 'What kind of function?',
-    html: table(['t (s)', '0', '1', '2', '3', '4'], [['Height (ft)', '256', '240', '192', '112', '0'], ['1st difference', '', '−16', '−48', '−80', '−112'], ['2nd difference', '', '', '−32', '−32', '−32']], 'wide'),
-    prompt: 'The second differences are all −32. What kind of function is the height?',
-    options: ['Linear', 'Quadratic', 'Exponential'],
+    labels: ['Agree: table shows it', 'Disagree: x = 6 gives 46 vs 64', 'Agree: quadratics grow faster', 'Disagree: x = 4'],
     correct: 1,
-    explain: 'Constant second differences mean the function is quadratic, just like q(x) = 5x² in Part 1. An exponential function would have a constant ratio instead.',
-  },
-
-  /* ===== Part 3: meaning of each term (10 min) ===== */
-  {
-    id: 'p3-256', part: 3, minutes: 2, kind: 'mc',
-    title: 'The starting number',
-    html: `<p>The height of the ball can be written as</p><p class="eq">h(t) = 256 − 16t²</p>`,
-    prompt: 'What does the 256 tell us?',
-    options: ['The height the ball started at, in feet', 'How fast the ball is falling', 'How many seconds until it hits the ground', 'How far the ball falls each second'],
-    labels: ['Starting height', 'Speed', 'Time to land', 'Distance per second'],
-    correct: 0,
-    explain: 'At t = 0, h(0) = 256 − 16(0)² = 256. So 256 is the starting height: the top of the tower.',
+    explain: 'A table with only four rows can’t show what happens later. At x = 5, 10 + 25 = 35 and 2⁵ = 32. At x = 6, 10 + 36 = 46 but 2⁶ = 64. The exponential passes the quadratic and stays ahead.',
   },
   {
-    id: 'p3-16t2', part: 3, minutes: 2, kind: 'mc',
-    title: 'The 16t² part',
-    html: `<p class="eq">h(t) = 256 − 16t²</p>`,
-    prompt: 'What does 16t² represent?',
-    options: ['The distance the ball has fallen after t seconds', 'The height of the ball after t seconds', 'The speed of the ball', 'The time it takes to fall 16 feet'],
-    labels: ['Distance fallen', 'Height', 'Speed', 'Time to fall 16 ft'],
-    correct: 0,
-    explain: '16t² is d(t), the distance fallen from your table. Height = starting height − distance fallen. The 16 comes from gravity (in feet), and t² is why the ball keeps speeding up.',
-  },
-  {
-    id: 'p3-wrong', part: 3, minutes: 3, kind: 'text',
-    title: 'Find the mistake',
-    html: `<p>A classmate says the height of the ball is</p><p class="eq">h(t) = 16t² − 256</p>`,
-    prompt: 'Explain what is wrong with your classmate’s function. Use what each term means.',
-    explain: 'In h(t) = 16t² − 256, h(0) = −256, so the ball would start underground, and the height would go up as time passes. The height should start at 256 and go down by the distance fallen: h(t) = 256 − 16t².',
-  },
-  {
-    id: 'p3-read', part: 3, minutes: 3, kind: 'num',
-    title: 'Read a new function',
-    html: `<p>A different ball is dropped. Its height in feet after <i>t</i> seconds is</p><p class="eq">h(t) = 144 − 16t²</p>`,
-    prompt: 'What height was it dropped from, and after how many seconds does it hit the ground?',
+    id: 'cooldown', part: 5, minutes: 4, kind: 'num',
+    title: 'Cool-down: Where will it be?',
+    html: `<p>The expression <span class="eq-in">16t²</span> represents the distance in feet an object falls after <i>t</i> seconds. The object is dropped from a height of <b>906 feet</b>.</p>`,
+    prompt: 'Write a function for the object’s height in feet t seconds after it is dropped. Then find its height 2 seconds after it is dropped.',
     fields: [
-      { label: 'Starting height', ans: 144, post: ' ft' },
-      { label: 'Hits the ground at t =', ans: 3, post: ' s' },
-    ],
-    show: v => `${v[0]} ft, ${v[1]} s`,
-    answerText: '144 ft, 3 s',
-    explain: 'The constant term is the starting height: 144 ft. It hits the ground when 16t² = 144, so t² = 9 and t = 3 seconds.',
-  },
-
-  /* ===== Part 4: write the function (12 min) ===== */
-  {
-    id: 'p4-cliff', part: 4, minutes: 3, kind: 'num',
-    title: 'A rock off a cliff',
-    html: `<p>A rock is dropped from the edge of a cliff that is 400 feet above the water. Use feet and seconds.</p>`,
-    prompt: 'Write a function for the rock’s height, then find when it hits the water.',
-    fields: [
-      { label: 'h(t) =', ans: 400 },
+      { label: 'h(t) =', ans: 906 },
       { label: '−', ans: 16, post: 't²' },
-      { label: 'Hits the water at t =', ans: 5, post: ' s' },
+      { label: 'Height after 2 seconds:', ans: 842, post: ' ft' },
     ],
     inline: [0, 1],
-    show: v => `h(t) = ${v[0]} − ${v[1]}t²,  t = ${v[2]}`,
-    answerText: 'h(t) = 400 − 16t²,  t = 5',
-    explain: 'Start at 400 ft and subtract the distance fallen, 16t². It hits the water when 16t² = 400, so t² = 25 and t = 5 seconds.',
-  },
-  {
-    id: 'p4-table', part: 4, minutes: 3, kind: 'num',
-    title: 'From a table',
-    html: table(['t (s)', '0', '1', '2', '3', '4'], [['Height (ft)', '300', '284', '236', '156', '?']], 'wide'),
-    prompt: 'This table shows the height of a dropped object. Write its height function and find the missing height.',
-    fields: [
-      { label: 'h(t) =', ans: 300 },
-      { label: '−', ans: 16, post: 't²' },
-      { label: 'Height at t = 4', ans: 44, post: ' ft' },
-    ],
-    inline: [0, 1],
-    show: v => `h(t) = ${v[0]} − ${v[1]}t²,  h(4) = ${v[2]}`,
-    answerText: 'h(t) = 300 − 16t²,  h(4) = 44',
-    explain: 'The height at t = 0 is 300, so that is the starting height. It fell 16 ft in the first second, so the distance fallen is 16t². h(4) = 300 − 16(16) = 300 − 256 = 44 ft.',
-  },
-  {
-    id: 'p4-meters', part: 4, minutes: 3, kind: 'num',
-    title: 'Now in meters',
-    html: `<p>In <b>meters</b>, the distance an object falls in <i>t</i> seconds is <span class="eq-in">4.9t²</span>.</p><p>A phone is dropped from a balcony 78.4 meters above the ground.</p>`,
-    prompt: 'Write a function for the phone’s height in meters, then find when it hits the ground.',
-    fields: [
-      { label: 'h(t) =', ans: 78.4, tol: 0.001 },
-      { label: '−', ans: 4.9, post: 't²', tol: 0.001 },
-      { label: 'Hits the ground at t =', ans: 4, post: ' s' },
-    ],
-    inline: [0, 1],
-    show: v => `h(t) = ${v[0]} − ${v[1]}t²,  t = ${v[2]}`,
-    answerText: 'h(t) = 78.4 − 4.9t²,  t = 4',
-    explain: 'Same structure, different units: starting height 78.4 m, distance fallen 4.9t². 4.9t² = 78.4 gives t² = 16, so t = 4 seconds.',
-  },
-  {
-    id: 'p4-exit', part: 4, minutes: 3, kind: 'text',
-    title: 'Exit ticket',
-    html: `<p class="eq">h(t) = 500 − 16t²</p>`,
-    prompt: 'In your own words: what do 500 and 16t² mean? Then say how the height changes over time compared with an exponential function like 2^t.',
-    explain: '500 is the starting height in feet, and 16t² is how far the object has fallen after t seconds. The height drops faster and faster with constant second differences (quadratic). An exponential function changes by a constant factor instead, and it eventually outgrows any quadratic.',
+    show: v => `h(t) = ${v[0]} − ${v[1]}t²,  h(2) = ${v[2]}`,
+    answerText: 'h(t) = 906 − 16t²,  h(2) = 842 ft',
+    explain: 'Start at 906 feet and subtract the distance fallen: h(t) = 906 − 16t². After 2 seconds it has fallen 16 · 2² = 64 feet, so its height is 906 − 64 = 842 feet.',
   },
 ];
 
-const ACTIVITY = { title: 'Falling Objects', parts, steps };
+const ACTIVITY = { title: 'Comparing Quadratic and Exponential Functions', brand: ['Quadratic vs.', 'Exponential'], lesson: 'Unit 7 · Lesson 2', parts, steps };
 if (typeof module !== 'undefined' && module.exports) module.exports = ACTIVITY;
 else window.FALL_ACTIVITY = ACTIVITY;
 })();

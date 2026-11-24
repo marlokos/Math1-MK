@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Falling Objects Live</title>
+<title>Quadratic vs. Exponential</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=JetBrains+Mono:wght@500;700&display=swap">
 <style>
@@ -99,7 +99,7 @@ textarea{width:100%;min-height:120px;resize:vertical}
 .eq{font-family:var(--mono);font-weight:700;font-size:1.25em;letter-spacing:.01em}
 .eq-in{font-family:var(--mono);font-weight:700}
 .hint{color:var(--muted);font-size:.92em}
-.split{display:grid;grid-template-columns:minmax(0,260px) minmax(0,1fr);gap:20px;align-items:center}
+.split{display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:20px;align-items:center}
 @media (max-width:620px){.split{grid-template-columns:1fr}}
 .tblwrap{overflow-x:auto;max-width:100%}
 table.dt{border-collapse:collapse;font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:.95em}
@@ -116,6 +116,11 @@ svg.strobe{width:100%;max-width:300px;height:auto;display:block}
 svg.strobe .tower{fill:var(--rule)} svg.strobe .win{fill:var(--surface)}
 svg.strobe .gnd{stroke:var(--ink);stroke-width:2} svg.strobe .ball{fill:var(--drop)}
 svg.strobe .tick{stroke:var(--muted);stroke-width:1.2} svg.strobe .lab{fill:var(--ink);font:12px var(--mono)} svg.strobe .dim{fill:var(--muted);font-size:10px}
+svg.patterns{width:100%;max-width:300px;height:auto;display:block;flex:1 1 230px}
+.pats{display:flex;flex-wrap:wrap;gap:8px 24px}
+svg.patterns .sq{fill:var(--sky-soft);stroke:var(--ink);stroke-width:1.2} svg.patterns .lab{fill:var(--ink);font:12px var(--body)} svg.patterns .dim{fill:var(--muted);font-size:10px}
+.pair{display:flex;flex-wrap:wrap;gap:12px 20px}.pair > div{min-width:0}.cap{font-weight:700;font-size:.85em;margin:0 0 4px}
+ul.facts{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
 .gl{font-family:var(--display);font-weight:800;font-size:1.2rem}
 
 .answerkey{border-radius:12px;padding:14px 16px;background:var(--ok-soft);display:flex;flex-direction:column;gap:6px}
@@ -321,8 +326,8 @@ DB.connected(ok=>{$conn.hidden=ok||view==='home'||view==='join';});
 function renderHome(){
   const h=store.get('fo-host'),p=store.get('fo-player');
   $app.className='wrap narrow';
-  $app.innerHTML=`<header class="brand"><div class="drops" aria-hidden="true"><i></i><i></i><i></i><i></i></div><h1>Falling <span>Objects</span></h1></header>
-  <p class="note" style="font-size:1.08rem">A class activity on quadratic and exponential growth and the height of falling objects. About 50 minutes.</p>
+  $app.innerHTML=`<header class="brand"><div class="drops" aria-hidden="true"><i></i><i></i><i></i><i></i></div><h1>${esc(ACT.brand[0])} <span>${esc(ACT.brand[1])}</span></h1></header>
+  <p class="note" style="font-size:1.08rem">${esc(ACT.lesson)}: ${esc(ACT.title)}. A teacher-led class activity, about 50 minutes.</p>
   <div class="modes">
     <button class="mode" data-go="join"><span class="eyebrow">Students</span><h3>Join class</h3><p>Type the code on the board and your first name.</p></button>
     <button class="mode" data-act="create"><span class="eyebrow">Teacher</span><h3>Start a class session</h3><p>Open this on the projector. You move the class from step to step.</p></button>
@@ -448,7 +453,7 @@ function renderHost(){
   $app.className='wrap';
   if(!S){$app.innerHTML='<p class="note">Connecting…</p>';return;}
   const url=joinUrl();
-  const top=`<header class="hbar"><h1>Falling <span>Objects</span></h1>
+  const top=`<header class="hbar"><h1>${esc(ACT.brand[0])} <span>${esc(ACT.brand[1])}</span></h1>
     <div class="joinchip"><span>Join at <span class="url">${esc(url)}</span></span><b>${esc(S.code)}</b></div>
     <span class="sp"></span><span class="count">${S.joined} joined</span>
     <button class="btn ghost small" data-act="drawer">Class list</button></header>`;
@@ -466,7 +471,7 @@ function renderHost(){
         <div><button class="btn drop" data-act="go" data-idx="1">Start the activity</button></div>
       </section>
       <section class="panel" style="display:flex;flex-direction:column;gap:14px">
-        <span class="eyebrow">Today · about ${sum} minutes</span>
+        <span class="eyebrow">${esc(ACT.lesson)} · about ${sum} minutes</span><h3 style="font-size:1.3rem">${esc(ACT.title)}</h3>
         <ul class="plan">${totals.map(p=>`<li><span class="pn">${p.id}</span><span>${esc(p.name)}</span><span class="pm">${mm(p.min)}</span></li>`).join('')}</ul>
         <p class="note">Names show here only while students join. Once you start, the board shows answers without names.</p>
       </section></div>`;
@@ -491,7 +496,7 @@ function renderHost(){
 }
 function hostOptionsPreview(st){
   if(st.kind!=='mc'&&st.kind!=='poll')return '';
-  return `<div class="choices ${st.grid?'g2':''}">${st.options.map((o,i)=>`<div class="choice ${S.revealed&&st.correct===i?'right':''}">${o}</div>`).join('')}</div>`;
+  return `<div class="choices ${st.grid?'g2':''}">${st.options.map((o,i)=>`<div class="choice ${S.revealed&&st.correct===i?'right':''}">${st.grid?o:`<span>${o}</span>`}</div>`).join('')}</div>`;
 }
 function hostKeyHTML(st){
   if(!S.revealed)return '';
@@ -568,7 +573,7 @@ function answerUI(st){
   if(st.kind==='mc'||st.kind==='poll'){
     return `<div class="choices ${st.grid?'g2':''}" role="group" aria-label="Choices">${st.options.map((o,i)=>{
       const cls=[S.mine===i?'sel':'',dis&&st.kind==='mc'&&st.correct===i?'right':''].join(' ');
-      return `<button class="choice ${cls}" data-choice="${i}" ${dis?'disabled':''} aria-pressed="${S.mine===i}">${o}</button>`;}).join('')}</div>`+statusLine(st);
+      return `<button class="choice ${cls}" data-choice="${i}" ${dis?'disabled':''} aria-pressed="${S.mine===i}">${st.grid?o:`<span>${o}</span>`}</button>`;}).join('')}</div>`+statusLine(st);
   }
   if(st.kind==='num'){
     let h='';

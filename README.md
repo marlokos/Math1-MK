@@ -102,20 +102,21 @@ Keep 5 categories with 5 clues each. Upload the changed file to your host to upd
 
 ---
 
-# Falling Objects Live
+# Quadratic vs. Exponential (Unit 7 Lesson 2) — live class activity
 
-A teacher-driven class activity that runs from GitHub Pages, using the same Firebase database as Math 1 Linear Jeopardy:
+A teacher-driven class activity for **Unit 7 Lesson 2: Comparing Quadratic and Exponential Functions**. It runs from GitHub Pages, using the same Firebase database as Math 1 Linear Jeopardy:
 
 **https://marlokos.github.io/Math1-MK/fall/**
 
-It takes about 50 minutes and builds in four parts:
+It follows the lesson slides in order and takes about 50 minutes:
 
-| Part | Steps | Time | Learning goal |
+| Part | Steps | Time | From the lesson |
 | --- | --- | --- | --- |
-| 1. Which grows faster? | 1–5 | 14 min | Compare rates of change for exponential and quadratic functions |
-| 2. Dropping a ball | 6–10 | 14 min | Use tables, graphs and rates of change for the height of a falling object |
-| 3. What each part means | 11–14 | 10 min | Explain the meaning of each term in h(t) = h₀ − 16t² |
-| 4. Write your own | 15–18 | 12 min | Write quadratic functions for falling objects (feet and meters) |
+| 1. Warm-up | 1–2 | 5 min | Bridge (Noah's and Mai's mistakes), Warm-up: Least to Greatest |
+| 2. Which one grows faster? | 3–8 | 15 min | Activity 1 (patterns A and B, tables, equations, growth factors), Activity 2 (6x² vs 3ˣ) |
+| 3. Falling from the sky | 9–13 | 12 min | Activity 3 (notice and wonder), Activity 4 (the 500-foot building, Jada's observation, d = 16t²) |
+| 4. Galileo and gravity | 14–18 | 12 min | Activity 5 (d(0.5), Elena's and Diego's tables, 576 − 16t², graphs) |
+| 5. Check your understanding | 19–20 | 6 min | Practice problem 10 (Diego's claim), Cool-down: Where Will It Be? |
 
 ## Running it
 
@@ -133,7 +134,7 @@ If the teacher's page reloads, open the link again and choose **Return to the se
 
 ## Changing the questions
 
-Everything is in `fall/activity.js`: prompts, choices, answers and explanations. The page loads this file in the browser, so a student who views the page source could find the answers.
+Everything is in `fall/activity.js`: prompts, choices, answers and explanations. (The folder is still called `fall` so the link stays the same.) The page loads this file in the browser, so a student who views the page source could find the answers.
 
 ## Files
 
