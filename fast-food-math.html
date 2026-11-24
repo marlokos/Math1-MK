@@ -416,8 +416,10 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 #partA .rim,#partA #a-plot .rimline{stroke:var(--orange-ink)}
 #partA .rimtxt,#partA #a-plot .rimtxt{fill:var(--orange-ink)}
 #partA .bar i{background:var(--blue)}
-#partB .awning{background:repeating-linear-gradient(90deg,var(--blue) 0 22px,#fff 22px 44px)}
-#partB .sign{background:var(--blue-ink);font-family:var(--f-display)}
+#partB .awning{background:repeating-linear-gradient(90deg,#d62a1e 0 22px,#ffc120 22px 44px)}
+#partB .bldg{box-shadow:inset 0 10px 0 #d62a1e}
+#partB .door,#partB .win{border-color:#ffc120}
+#partB .sign{background:#d62a1e;color:#ffc120;font-family:var(--f-display);border:2px solid #ffc120}
 #partB .week span i{background:color-mix(in srgb,var(--blue) 45%,transparent)}
 #partB #b-plot .reg{stroke:var(--ink)}
 #partB .sw.rg{border-top-color:var(--ink)}
