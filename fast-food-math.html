@@ -1,0 +1,1069 @@
+<title>Fast Food Math</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Courier+Prime:wght@400;700&family=Figtree:wght@400;600;700&display=swap">
+<style>
+[hidden]{display:none!important}
+:root{
+  --bg:#eef1ee; --panel:#ffffff; --ink:#231a15; --muted:#685e58; --line:#d8d3ce; --grid:#ece8e4;
+  --red:#c4302a; --red-ink:#ffffff; --cola:#5b2d1d; --orange:#d2620a; --ice:#e6f4fa; --tape:#fffdf7;
+  --ok:#1f7a45; --no:#b3261e;
+  --f-display:"Alfa Slab One", Rockwell, "Roboto Slab", Georgia, serif;
+  --f-body:"Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono:"Courier Prime", "Courier New", ui-monospace, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#16120f; --panel:#211a16; --ink:#f3ebe5; --muted:#b6a99f; --line:#3d332c; --grid:#2d251f;
+  --red:#ff6b5e; --red-ink:#1d0d0a; --cola:#d39a74; --orange:#ff9d47; --ice:#cfe7f1; --tape:#2a221d;
+  --ok:#61d398; --no:#ff8a80; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#16120f; --panel:#211a16; --ink:#f3ebe5; --muted:#b6a99f; --line:#3d332c; --grid:#2d251f;
+  --red:#ff6b5e; --red-ink:#1d0d0a; --cola:#d39a74; --orange:#ff9d47; --ice:#cfe7f1; --tape:#2a221d;
+  --ok:#61d398; --no:#ff8a80; color-scheme:dark}
+*{box-sizing:border-box}
+html,body{background:var(--bg);color:var(--ink)}
+body{font-family:var(--f-body);font-size:16px;line-height:1.5}
+:root{
+  --bg:#eef1ee; --panel:#ffffff; --ink:#231a15; --muted:#685e58; --line:#d8d3ce; --grid:#ece8e4;
+  --red:#c4302a; --red-ink:#ffffff; --pt:#5b2d1d; --hot:#d2620a; --tape:#fffdf7;
+  --sky:#bfe0ef; --facade:#e9d9c3; --brick:#cdb79c; --glass:#3f5f73; --walk:#b9b2aa; --curb:#8e877f; --night:#0d1430;
+  --ok:#1f7a45; --no:#b3261e;
+  --c1:#2364aa; --c2:#2a8a4a; --c3:#7b3fa0; --c4:#0f8b8d; --c5:#b5367a; --c6:#7a6a12;
+  --f-display:"Alfa Slab One", Rockwell, "Roboto Slab", Georgia, serif;
+  --f-body:"Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono:"Courier Prime", "Courier New", ui-monospace, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#16120f; --panel:#211a16; --ink:#f3ebe5; --muted:#b6a99f; --line:#3d332c; --grid:#2d251f;
+  --red:#ff6b5e; --red-ink:#1d0d0a; --pt:#e0b08e; --hot:#ff9d47; --tape:#2a221d;
+  --sky:#5d7f93; --facade:#9c8a74; --brick:#857360; --glass:#24394a; --walk:#6f6861; --curb:#4c4640; --night:#05081a;
+  --ok:#61d398; --no:#ff8a80;
+  --c1:#7fb2ff; --c2:#6fd394; --c3:#c49af0; --c4:#5fd4d6; --c5:#f08bc0; --c6:#d6cf6a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#16120f; --panel:#211a16; --ink:#f3ebe5; --muted:#b6a99f; --line:#3d332c; --grid:#2d251f;
+  --red:#ff6b5e; --red-ink:#1d0d0a; --pt:#e0b08e; --hot:#ff9d47; --tape:#2a221d;
+  --sky:#5d7f93; --facade:#9c8a74; --brick:#857360; --glass:#24394a; --walk:#6f6861; --curb:#4c4640; --night:#05081a;
+  --ok:#61d398; --no:#ff8a80;
+  --c1:#7fb2ff; --c2:#6fd394; --c3:#c49af0; --c4:#5fd4d6; --c5:#f08bc0; --c6:#d6cf6a; color-scheme:dark}
+@keyframes swing{from{transform:rotate(-18deg)}to{transform:rotate(18deg)}}
+@keyframes walkR{0%{left:-40px;opacity:1}40%{left:calc(50% - 13px);opacity:1}46%{opacity:0}56%{left:calc(50% - 13px);opacity:0}62%{opacity:1}100%{left:calc(100% + 40px);opacity:1}}
+@keyframes walkL{0%{left:calc(100% + 40px);opacity:1}40%{left:calc(50% - 13px);opacity:1}46%{opacity:0}56%{left:calc(50% - 13px);opacity:0}62%{opacity:1}100%{left:-40px;opacity:1}}
+
+/* Layout: one restaurant, two stations. A slim masthead with Part A / Part B tabs; each part keeps its own full layout below */
+.mast{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;background:var(--panel);border-bottom:1px solid var(--line)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:31;background:var(--panel)}
+.mast-in{max-width:1200px;margin:0 auto;display:flex;flex-wrap:wrap;align-items:center;gap:8px 18px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:10px}
+.brand{font-family:var(--f-display);font-size:22px;color:var(--red);line-height:1;margin:0;margin-right:auto}
+.brand small{display:block;font-family:var(--f-body);font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:4px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tab{border:2px solid var(--line);background:transparent;border-radius:999px;padding:8px 14px;font-weight:700;font-size:14px;color:var(--ink);display:flex;gap:8px;align-items:center}
+.tab b{font-family:var(--f-display);font-weight:400;font-size:15px;color:var(--red)}
+.tab[aria-selected="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.tab[aria-selected="true"] b{color:var(--bg)}
+.tab:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
+#partB .station{scroll-margin-top:72px}
+
+#partA .page{max-width:1200px;margin:0 auto;display:flex;flex-direction:column;gap:18px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px}
+#partA button,#partA input,#partA select{font:inherit;color:inherit}
+#partA button{cursor:pointer}
+#partA :focus-visible{outline:3px solid var(--orange);outline-offset:2px}
+#partA .top{display:flex;flex-wrap:wrap;gap:16px 28px;align-items:flex-end;justify-content:space-between}
+#partA .intro{flex:1 1 420px;min-width:0;display:flex;flex-direction:column;gap:6px}
+#partA .eyebrow{font-size:12px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+#partA .ptitle{font-family:var(--f-display);font-weight:400;font-size:clamp(34px,5.4vw,58px);line-height:1;margin:0;color:var(--red);text-wrap:balance}
+#partA .lede{margin:4px 0 0;max-width:64ch}
+#partA .lede b.a{color:var(--cola)}
+#partA .lede b.b{color:var(--orange)}
+#partA .ticket{flex:0 1 330px;min-width:0;background:var(--tape);border:2px dashed var(--line);border-radius:6px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;font-family:var(--f-mono)}
+#partA .ticket .k{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+#partA .ticket .num{font-size:34px;font-weight:700;letter-spacing:.14em;line-height:1}
+#partA .ticket form{display:flex;gap:6px;flex-wrap:wrap}
+#partA .ticket input{font-family:var(--f-mono);text-transform:uppercase;letter-spacing:.14em;width:7.5em;padding:6px 8px;border:2px solid var(--line);border-radius:8px;background:var(--panel)}
+#partA .ticket .hint{font-family:var(--f-body);font-size:13px;color:var(--muted);margin:0}
+#partA .btn{border:0;border-radius:999px;background:var(--red);color:var(--red-ink);font-weight:700;padding:11px 18px;font-size:15px;line-height:1.2}
+#partA .btn:hover{filter:brightness(1.07)}
+#partA .btn.alt{background:transparent;color:var(--ink);border:2px solid var(--line);padding:9px 16px}
+#partA .btn.alt:hover{border-color:var(--muted);filter:none}
+#partA .btn.sm{padding:7px 12px;font-size:14px}
+#partA .btn:disabled{opacity:.45;cursor:default;filter:none}
+#partA .panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;min-width:0}
+#partA h2{font-family:var(--f-display);font-weight:400;font-size:22px;margin:0;line-height:1.15}
+#partA .stage{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:18px}
+@media (max-width:880px){#partA .stage{grid-template-columns:1fr}}
+#partA .station{display:flex;flex-direction:column;gap:14px}
+#partA .cups{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+#partA .cupcol{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0}
+#partA .cupcol svg{width:100%;max-width:170px;height:auto;display:block}
+#partA .chip{font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:3px 10px;border-radius:999px;border:2px solid currentColor}
+#partA .chip.a{color:var(--cola)}
+#partA .chip.b{color:var(--orange)}
+#partA .read{font-family:var(--f-mono);font-weight:700;font-size:clamp(22px,3vw,30px);font-variant-numeric:tabular-nums;line-height:1}
+#partA .read small{font-size:.55em;color:var(--muted)}
+#partA .cup-outline{fill:none;stroke:var(--ink);stroke-width:3;stroke-linejoin:round}
+#partA .cup-back{fill:var(--bg)}
+#partA .liq-a{fill:var(--cola)}
+#partA .liq-b{fill:var(--orange)}
+#partA .icecube{fill:var(--ice);stroke:var(--panel);stroke-width:1.5;opacity:.92}
+#partA .rim{stroke:var(--red);stroke-width:1.5;stroke-dasharray:4 3}
+#partA .rimtxt{fill:var(--red);font:700 9px var(--f-body)}
+#partA .nozzle{fill:var(--muted)}
+#partA .clock{display:flex;align-items:center;gap:12px}
+#partA .clock .t{font-family:var(--f-display);font-size:clamp(30px,4vw,40px);line-height:1;min-width:3.6em;font-variant-numeric:tabular-nums}
+#partA .bar{flex:1;height:12px;border-radius:999px;background:var(--grid);overflow:hidden}
+#partA .bar i{display:block;height:100%;width:0;background:var(--red)}
+#partA .ctrls{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+#partA .seg{display:inline-flex;border:2px solid var(--line);border-radius:999px;padding:3px;gap:2px;flex-wrap:wrap}
+#partA .seg label{position:relative;display:flex;align-items:center;gap:6px;padding:5px 12px;border-radius:999px;font-size:14px;font-weight:600;cursor:pointer}
+#partA .seg input{position:absolute;opacity:0;pointer-events:none}
+#partA .seg label:has(input:checked){background:var(--ink);color:var(--bg)}
+#partA .seg label:has(input:focus-visible){outline:3px solid var(--orange)}
+#partA .note{font-size:13px;color:var(--muted);margin:0}
+#partA .graph{display:flex;flex-direction:column;gap:10px}
+#partA .graph-head{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:baseline;justify-content:space-between}
+#partA .legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;color:var(--muted)}
+#partA .legend span{display:inline-flex;align-items:center;gap:6px}
+#partA .sw{width:12px;height:12px;display:inline-block}
+#partA .sw.a{background:var(--cola);border-radius:50%}
+#partA .sw.b{background:var(--orange)}
+#partA .sw.ln{width:20px;height:0;border-top:3px dashed var(--muted)}
+#partA .sw.rg{width:20px;height:0;border-top:3px solid var(--muted)}
+#partA #a-plot{width:100%;height:auto;display:block}
+#partA #a-plot .gl{stroke:var(--grid);stroke-width:1}
+#partA #a-plot .ax{stroke:var(--ink);stroke-width:1.5}
+#partA #a-plot .tk{fill:var(--muted);font:12px var(--f-body)}
+#partA #a-plot .lab{fill:var(--ink);font:700 13px var(--f-body)}
+#partA #a-plot .pa{fill:var(--cola)}
+#partA #a-plot .pb{fill:var(--orange)}
+#partA #a-plot .sa{stroke:var(--cola)}
+#partA #a-plot .sb{stroke:var(--orange)}
+#partA #a-plot .user{stroke-width:2.5;stroke-dasharray:8 6;fill:none}
+#partA #a-plot .reg{stroke-width:2.5;fill:none;opacity:.75}
+#partA #a-plot .rimline{stroke:var(--red);stroke-width:1.5;stroke-dasharray:6 4}
+#partA #a-plot .rimtxt{fill:var(--red);font:700 12px var(--f-body)}
+#partA #a-plot .now{stroke:var(--muted);stroke-width:1.5;stroke-dasharray:3 4}
+#partA .work{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,8fr);gap:18px;align-items:start}
+@media (max-width:880px){#partA .work{grid-template-columns:1fr}}
+#partA .receipt{background:var(--tape);border:1px solid var(--line);border-radius:4px;font-family:var(--f-mono);padding:14px 14px 10px;min-width:0;
+  box-shadow:0 1px 0 var(--line)}
+#partA .receipt .rh{text-align:center;border-bottom:2px dashed var(--line);padding-bottom:8px;margin-bottom:6px;line-height:1.3}
+#partA .receipt .rh b{display:block;font-size:17px;letter-spacing:.08em}
+#partA .receipt .rh span{font-size:13px;color:var(--muted)}
+#partA .tape{max-height:380px;overflow-y:auto}
+#partA .tape table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;font-size:15px}
+#partA .tape th{position:sticky;top:0;background:var(--tape);text-align:right;font-size:12px;letter-spacing:.06em;color:var(--muted);padding:4px 6px;border-bottom:1px dashed var(--line)}
+#partA .tape th:first-child,#partA .tape td:first-child{text-align:left}
+#partA .tape td{text-align:right;padding:3px 6px}
+#partA .tape td.a{color:var(--cola);font-weight:700}
+#partA .tape td.b{color:var(--orange);font-weight:700}
+#partA .tape tr.new td{background:color-mix(in srgb,var(--orange) 16%,transparent)}
+#partA .tape .empty{color:var(--muted);font-size:14px;padding:14px 2px;text-align:left}
+#partA .receipt .rf{border-top:2px dashed var(--line);margin-top:6px;padding-top:6px;font-size:12px;color:var(--muted);text-align:center}
+#partA .model{display:flex;flex-direction:column;gap:16px}
+#partA .lines{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}
+#partA .eq{border:2px solid var(--line);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+#partA .eq.a{border-color:color-mix(in srgb,var(--cola) 45%,var(--line))}
+#partA .eq.b{border-color:color-mix(in srgb,var(--orange) 55%,var(--line))}
+#partA .eq .row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-family:var(--f-mono);font-size:19px;font-weight:700}
+#partA .eq input{width:5.2em;font-family:var(--f-mono);font-size:17px;font-weight:700;padding:5px 6px;border:2px solid var(--line);border-radius:8px;background:var(--bg);text-align:center}
+#partA .eq .cap{font-size:13px;color:var(--muted)}
+#partA .qs{margin:0;padding-left:1.4em;display:flex;flex-direction:column;gap:14px}
+#partA .qs li{padding-left:4px}
+#partA .qs p{margin:0 0 6px}
+#partA .ans{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+#partA .ans input,#partA .ans select{padding:7px 9px;border:2px solid var(--line);border-radius:8px;background:var(--bg);max-width:100%}
+#partA .ans input{width:7em;font-family:var(--f-mono);font-weight:700}
+#partA .unit{font-size:14px;color:var(--muted)}
+#partA .fb{font-size:14px;font-weight:600;flex-basis:100%;margin:0}
+#partA .fb.ok{color:var(--ok)}
+#partA .fb.no{color:var(--no)}
+#partA .regbox{border-left:4px solid var(--red);background:var(--bg);border-radius:0 10px 10px 0;padding:10px 14px;display:flex;flex-direction:column;gap:6px}
+#partA .regbox .r{font-family:var(--f-mono);font-weight:700;font-size:17px}
+#partA .regbox .r.a{color:var(--cola)}
+#partA .regbox .r.b{color:var(--orange)}
+#partA .regbox ul{margin:4px 0 0;padding-left:1.2em}
+#partA details.guide{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+#partA details.guide summary{cursor:pointer;font-family:var(--f-display);font-size:20px}
+#partA .guide-body{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;margin-top:12px}
+#partA .guide-body h3{margin:0 0 6px;font-size:15px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+#partA .guide-body ol,#partA .guide-body ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
+#partA .key{font-family:var(--f-mono);font-size:15px}
+@media (prefers-reduced-motion:reduce){}
+#partB .page{max-width:1200px;margin:0 auto;display:flex;flex-direction:column;gap:18px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px}
+#partB button,#partB input,#partB select{font:inherit;color:inherit}
+#partB button{cursor:pointer}
+#partB :focus-visible{outline:3px solid var(--hot);outline-offset:2px}
+#partB .top{display:flex;flex-wrap:wrap;gap:16px 28px;align-items:flex-end;justify-content:space-between}
+#partB .intro{flex:1 1 420px;min-width:0;display:flex;flex-direction:column;gap:6px}
+#partB .eyebrow{font-size:12px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+#partB .ptitle{font-family:var(--f-display);font-weight:400;font-size:clamp(34px,5.4vw,58px);line-height:1;margin:0;color:var(--red);text-wrap:balance}
+#partB .lede{margin:4px 0 0;max-width:66ch}
+#partB .ticket{flex:0 1 330px;min-width:0;background:var(--tape);border:2px dashed var(--line);border-radius:6px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;font-family:var(--f-mono)}
+#partB .ticket .k{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+#partB .ticket .num{font-size:34px;font-weight:700;letter-spacing:.14em;line-height:1}
+#partB .ticket form{display:flex;gap:6px;flex-wrap:wrap}
+#partB .ticket input{font-family:var(--f-mono);text-transform:uppercase;letter-spacing:.14em;width:7.5em;padding:6px 8px;border:2px solid var(--line);border-radius:8px;background:var(--panel)}
+#partB .ticket .hint{font-family:var(--f-body);font-size:13px;color:var(--muted);margin:0}
+#partB .btn{border:0;border-radius:999px;background:var(--red);color:var(--red-ink);font-weight:700;padding:11px 18px;font-size:15px;line-height:1.2}
+#partB .btn:hover{filter:brightness(1.07)}
+#partB .btn.alt{background:transparent;color:var(--ink);border:2px solid var(--line);padding:9px 16px}
+#partB .btn.alt:hover{border-color:var(--muted);filter:none}
+#partB .btn.sm{padding:7px 12px;font-size:14px}
+#partB .btn:disabled{opacity:.45;cursor:default;filter:none}
+#partB .panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;min-width:0}
+#partB h2{font-family:var(--f-display);font-weight:400;font-size:22px;margin:0;line-height:1.15}
+#partB .note{font-size:13px;color:var(--muted);margin:0}
+#partB .stage{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:18px;align-items:stretch}
+@media (max-width:880px){#partB .stage{grid-template-columns:1fr}}
+#partB .station{display:flex;flex-direction:column;gap:10px;padding:10px 12px}
+#partB .strip{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center}
+#partB .weekbox{flex:1 1 260px;min-width:0;display:flex;flex-direction:column;gap:6px}
+#partB .scene{position:relative;height:clamp(150px,21vh,250px);border-radius:12px;overflow:hidden;background:var(--sky)}
+#partB .bldg{position:absolute;left:22%;right:22%;bottom:40px;height:calc(100% - 64px);max-height:170px;background:var(--facade);
+  background-image:repeating-linear-gradient(0deg,transparent 0 13px,var(--brick) 13px 14px)}
+#partB .awning{position:absolute;left:-4%;right:-4%;top:34px;height:26px;background:repeating-linear-gradient(90deg,var(--red) 0 22px,#fff 22px 44px);
+  border-radius:0 0 10px 10px;box-shadow:0 3px 0 rgba(0,0,0,.12)}
+#partB .sign{position:absolute;left:50%;top:6px;transform:translateX(-50%);background:var(--red);color:#fff;font:400 15px var(--f-display);letter-spacing:.04em;padding:2px 12px;border-radius:6px;white-space:nowrap}
+#partB .win{position:absolute;bottom:0;width:30%;height:72px;background:var(--glass);border:4px solid var(--curb);border-bottom:0}
+#partB .win.l{left:5%}
+#partB .win.r{right:5%}
+#partB .win::after{content:"";position:absolute;inset:8px 55% 30% 10%;background:linear-gradient(135deg,rgba(255,255,255,.35),transparent)}
+#partB .door{position:absolute;left:50%;bottom:0;width:44px;height:84px;transform:translateX(-50%);background:var(--glass);border:4px solid var(--curb);border-bottom:0;border-radius:4px 4px 0 0}
+#partB .door::after{content:"";position:absolute;right:5px;top:40px;width:5px;height:5px;border-radius:50%;background:var(--paint,#f2c230)}
+#partB .sidewalk{position:absolute;left:0;right:0;bottom:0;height:40px;background:var(--walk);border-top:4px solid var(--curb)}
+#partB .night{position:absolute;inset:0;background:var(--night);opacity:0;pointer-events:none;z-index:4;transition:opacity .2s linear}
+#partB .dayflag{position:absolute;left:10px;top:10px;z-index:5;background:var(--panel);color:var(--ink);border-radius:999px;padding:3px 12px;font:700 13px var(--f-body);letter-spacing:.04em}
+#partB .person{position:absolute;bottom:6px;left:-40px;width:26px;height:54px;z-index:3;
+  animation:walkR 2.6s linear forwards}
+#partB .person.fromR{animation-name:walkL}
+#partB .person svg{display:block;width:26px;height:46px}
+#partB .person.fromR svg{transform:scaleX(-1)}
+#partB .person .age{position:absolute;top:-16px;left:50%;transform:translateX(-50%);font:700 11px var(--f-mono);background:var(--panel);color:var(--ink);border-radius:6px;padding:0 4px;line-height:15px;white-space:nowrap}
+#partB .person .leg{transform-origin:50% 0;animation:swing .32s ease-in-out infinite alternate}
+#partB .person .leg.b{animation-direction:alternate-reverse}
+#partB .week{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+#partB .week span{text-align:center;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);border-radius:6px;padding:4px 0;background:var(--grid);position:relative;overflow:hidden}
+#partB .week span i{position:absolute;left:0;top:0;bottom:0;width:0;background:color-mix(in srgb,var(--red) 30%,transparent)}
+#partB .week span b{position:relative;font-weight:700}
+#partB .week span.now{color:var(--ink)}
+#partB .stats{display:grid;grid-template-columns:auto auto;gap:10px;flex:0 1 auto}
+#partB .stats .lc{min-width:150px}
+#partB .lc{border:2px solid var(--line);border-radius:10px;padding:8px 10px;font-family:var(--f-mono);min-width:0}
+#partB .lc .h{font-family:var(--f-body);font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+#partB .lc .v{font-size:clamp(16px,2vw,21px);font-weight:700;font-variant-numeric:tabular-nums}
+#partB .ctrls{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+#partB .graph{display:flex;flex-direction:column;gap:8px;padding-block:12px}
+#partB .graph-head{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:baseline;justify-content:space-between}
+#partB .legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;color:var(--muted)}
+#partB .legend span{display:inline-flex;align-items:center;gap:6px}
+#partB .sw{width:12px;height:12px;display:inline-block;background:var(--pt);border-radius:50%;opacity:.7}
+#partB .sw.ln{width:20px;height:0;border-top:3px dashed var(--muted);border-radius:0;background:none;opacity:1}
+#partB .sw.rg{width:20px;height:0;border-top:3px solid var(--red);border-radius:0;background:none;opacity:1}
+#partB #b-plot{width:100%;height:auto;max-height:calc(56vh - 70px);display:block}
+#partB #b-plot .gl{stroke:var(--grid);stroke-width:1}
+#partB #b-plot .ax{stroke:var(--ink);stroke-width:1.5}
+#partB #b-plot .tk{fill:var(--muted);font:12px var(--f-body)}
+#partB #b-plot .lab{fill:var(--ink);font:700 13px var(--f-body)}
+#partB #b-plot .pt{fill:var(--pt);fill-opacity:.55;stroke:var(--panel);stroke-width:1}
+#partB #b-plot .pt.fresh{fill:var(--hot);fill-opacity:1;stroke:var(--ink);stroke-width:1.5}
+#partB #b-plot .tl{stroke-width:2.5;fill:none}
+#partB #b-plot .tl.sel{stroke-width:4.5}
+#partB #b-plot .prev{stroke:var(--muted);stroke-width:2.5;stroke-dasharray:8 6;fill:none}
+#partB #b-plot .res{stroke-width:1.5;opacity:.6}
+#partB #b-plot .reg{stroke:var(--red)}
+#partB .receipt{background:var(--tape);border:1px solid var(--line);border-radius:4px;font-family:var(--f-mono);padding:14px 14px 10px;min-width:0;display:flex;flex-direction:column}
+#partB .receipt .rh{text-align:center;border-bottom:2px dashed var(--line);padding-bottom:8px;margin-bottom:6px;line-height:1.3}
+#partB .receipt .rh b{display:block;font-size:17px;letter-spacing:.08em}
+#partB .receipt .rh span{font-size:13px;color:var(--muted)}
+#partB .tape{flex:1 1 0;min-height:240px;overflow-y:auto}
+@media (max-width:880px){#partB .tape{flex:none;max-height:420px}}
+#partB .tape table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;font-size:15px}
+#partB .tape th{position:sticky;top:0;background:var(--tape);text-align:right;font-size:12px;letter-spacing:.06em;color:var(--muted);padding:4px 6px;border-bottom:1px dashed var(--line)}
+#partB .tape th:first-child,#partB .tape td:first-child{text-align:left}
+#partB .tape td{text-align:right;padding:3px 6px}
+#partB .tape td.s{font-weight:700;color:var(--pt)}
+#partB .tape tr.new td{background:color-mix(in srgb,var(--hot) 22%,transparent)}
+#partB .receipt .rf{border-top:2px dashed var(--line);margin-top:6px;padding-top:6px;font-size:12px;color:var(--muted);text-align:center}
+#partB .lab-panel{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px 28px;align-items:start}
+@media (max-width:880px){#partB .lab-panel{grid-template-columns:1fr}}
+#partB .labcol{display:flex;flex-direction:column;gap:14px;min-width:0}
+#partB .try{border:2px solid var(--line);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:10px}
+#partB .try .row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-family:var(--f-mono);font-size:19px;font-weight:700}
+#partB .try input{width:5.4em;font-family:var(--f-mono);font-size:17px;font-weight:700;padding:5px 6px;border:2px solid var(--line);border-radius:8px;background:var(--bg);text-align:center}
+#partB .tried{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+#partB .tried li{display:flex;align-items:center;gap:8px;border:2px solid var(--line);border-radius:10px;padding:6px 8px;min-width:0}
+#partB .tried li.sel{border-color:var(--ink)}
+#partB .tried .pick{flex:1;min-width:0;display:flex;flex-wrap:wrap;align-items:center;gap:4px 12px;background:none;border:0;padding:2px;text-align:left}
+#partB .tried .nm{display:inline-flex;align-items:center;gap:6px;font-weight:700}
+#partB .tried .nm i{width:20px;height:0;border-top:4px solid currentColor;display:inline-block}
+#partB .tried .eqt{font-family:var(--f-mono);font-weight:700}
+#partB .tried .met{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+#partB .tried .best{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:var(--ok);color:var(--panel);border-radius:999px;padding:2px 8px}
+#partB .tried .x{border:0;background:none;color:var(--muted);font-size:20px;line-height:1;padding:2px 6px}
+#partB .tried .x:hover{color:var(--no)}
+#partB .tried .emptyl{color:var(--muted);font-size:14px;border-style:dashed}
+#partB .qs{margin:0;padding-left:1.4em;display:flex;flex-direction:column;gap:14px}
+#partB .qs li{padding-left:4px}
+#partB .qs p{margin:0 0 6px}
+#partB .ans{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+#partB .ans input,#partB .ans select{padding:7px 9px;border:2px solid var(--line);border-radius:8px;background:var(--bg);max-width:100%}
+#partB .ans input{width:7em;font-family:var(--f-mono);font-weight:700}
+#partB .unit{font-size:14px;color:var(--muted)}
+#partB .fb{font-size:14px;font-weight:600;flex-basis:100%;margin:0}
+#partB .fb.ok{color:var(--ok)}
+#partB .fb.no{color:var(--no)}
+#partB details.guide{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+#partB details.guide summary{cursor:pointer;font-family:var(--f-display);font-size:20px}
+#partB .guide-body{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;margin-top:12px}
+#partB .guide-body h3{margin:0 0 6px;font-size:15px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+#partB .guide-body ol,#partB .guide-body ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
+#partB .key{font-family:var(--f-mono);font-size:15px}
+@media (prefers-reduced-motion:reduce){#partB .person,#partB .person .leg{animation:none}
+#partB .night{transition:none}}
+</style>
+<header class="mast"><div class="mast-in">
+  <p class="brand">Fast Food Math<small>Math 1 · Linear functions &amp; regression</small></p>
+  <div class="tabs" role="tablist" aria-label="Activity parts">
+    <button class="tab" role="tab" id="tabA" aria-controls="partA" aria-selected="true" data-part="a"><b>A</b>Soda Fountain Race</button>
+    <button class="tab" role="tab" id="tabB" aria-controls="partB" aria-selected="false" data-part="b"><b>B</b>The Regulars</button>
+  </div>
+</div></header>
+<section id="partA" role="tabpanel" aria-labelledby="tabA">
+
+
+<div class="page">
+  <header class="top">
+    <div class="intro">
+      <div class="eyebrow">Part A · Linear functions</div>
+      <h2 class="ptitle">Soda Fountain Race</h2>
+      <p class="lede">Two 64 oz cups sit under the fountains at the drink station. <b class="a">Cup A (cola)</b> starts with a big scoop of ice. <b class="b">Cup B (orange soda)</b> has less ice, but its fountain pours faster. A sensor in each cup reports the ounces inside, ice included, once every second for 30 seconds.</p>
+    </div>
+    <div class="ticket" aria-label="Data set">
+      <div><div class="k">Order #</div><div class="num" id="a-codeShow">----</div></div>
+      <form id="a-codeForm">
+        <input id="a-codeIn" maxlength="4" autocomplete="off" aria-label="Order number to load" placeholder="ABCD">
+        <button class="btn alt sm" type="submit">Load</button>
+        <button class="btn alt sm" type="button" id="a-newCode">New order</button>
+      </form>
+      <p class="hint">Everyone who loads the same order # gets the same data.</p>
+    </div>
+  </header>
+
+  <section class="stage">
+    <div class="panel station">
+      <div class="cups">
+        <div class="cupcol"><span class="chip a">Cup A · Cola</span><svg id="a-cupA" viewBox="0 -26 120 220" role="img" aria-label="Cup A filling with cola"></svg><div class="read" id="a-readA">0.0 <small>oz</small></div></div>
+        <div class="cupcol"><span class="chip b">Cup B · Orange</span><svg id="a-cupB" viewBox="0 -26 120 220" role="img" aria-label="Cup B filling with orange soda"></svg><div class="read" id="a-readB">0.0 <small>oz</small></div></div>
+      </div>
+      <div class="clock"><span class="t" id="a-clock">0.0 s</span><div class="bar" aria-hidden="true"><i id="a-barFill"></i></div></div>
+      <div class="ctrls">
+        <button class="btn" id="a-go">Start the pour</button>
+        <button class="btn alt" id="a-skip">Skip to 30 s</button>
+        <button class="btn alt" id="a-again">Pour again</button>
+      </div>
+      <div class="ctrls">
+        <div class="seg" role="radiogroup" aria-label="Sensor readings">
+          <label><input type="radio" name="mode" id="a-modeExact" value="exact" checked>Exact readings</label>
+          <label><input type="radio" name="mode" id="a-modeNoisy" value="noisy">Real sensor (±0.4 oz)</label>
+        </div>
+      </div>
+      <p class="note">Exact readings fall on a perfect line. Real sensor readings wobble a little, so you need a line of best fit.</p>
+    </div>
+
+    <div class="panel graph">
+      <div class="graph-head">
+        <h2>Ounces vs. time</h2>
+        <div class="legend"><span><i class="sw a"></i>Cup A</span><span><i class="sw b"></i>Cup B</span><span><i class="sw ln"></i>Your line</span><span><i class="sw rg"></i>Regression line</span></div>
+      </div>
+      <svg id="a-plot" viewBox="0 0 640 400" role="img" aria-label="Scatter plot of ounces in each cup against time in seconds"></svg>
+    </div>
+  </section>
+
+  <section class="work">
+    <div class="receipt">
+      <div class="rh"><b>DRINK STATION 4</b><span>SENSOR LOG · ORDER #<span id="a-codeR">----</span></span></div>
+      <div class="tape" id="a-tape"><table><thead><tr><th>TIME (s)</th><th>CUP A (oz)</th><th>CUP B (oz)</th></tr></thead><tbody id="a-rows"></tbody></table><p class="empty" id="a-emptyTape">Press <b>Start the pour</b>. A new reading prints every second.</p></div>
+      <div class="rf" id="a-rfoot">0 of 31 readings</div>
+    </div>
+
+    <div class="panel model">
+      <div>
+        <h2>Model it</h2>
+        <p class="note" style="margin-top:4px">Type a slope and a starting amount for each cup. Your line appears on the graph so you can test it against the data.</p>
+      </div>
+      <div class="lines">
+        <div class="eq a"><div class="cap">Cup A · Cola</div><div class="row">y = <input id="a-mA" inputmode="decimal" aria-label="Cup A slope" placeholder="rate"> x + <input id="a-bA" inputmode="decimal" aria-label="Cup A starting amount" placeholder="start"></div></div>
+        <div class="eq b"><div class="cap">Cup B · Orange</div><div class="row">y = <input id="a-mB" inputmode="decimal" aria-label="Cup B slope" placeholder="rate"> x + <input id="a-bB" inputmode="decimal" aria-label="Cup B starting amount" placeholder="start"></div></div>
+      </div>
+      <div class="ans"><button class="btn sm" id="a-chkLines">Check my lines</button><p class="fb" id="a-fbLines" aria-live="polite"></p></div>
+
+      <ol class="qs">
+        <li><p>How fast does <b>Cup B</b> fill?</p>
+          <div class="ans"><input id="a-q1" inputmode="decimal" aria-label="Cup B fill rate"><span class="unit">oz per second</span><button class="btn alt sm" data-q="1">Check</button><p class="fb" id="a-fb1" aria-live="polite"></p></div></li>
+        <li><p>What does Cup A's reading at 0 seconds tell you?</p>
+          <div class="ans"><select id="a-q2" aria-label="Meaning of Cup A's starting value"><option value="">Choose one</option><option value="w">How fast the cola pours</option><option value="r">How much ice was in the cup before the pour</option><option value="x">How full the cup is after 30 seconds</option><option value="y">When the cup will overflow</option></select><button class="btn alt sm" data-q="2">Check</button><p class="fb" id="a-fb2" aria-live="polite"></p></div></li>
+        <li><p>At what time do the two cups hold the same amount?</p>
+          <div class="ans"><input id="a-q3" inputmode="decimal" aria-label="Time when the cups are equal"><span class="unit">seconds</span><button class="btn alt sm" data-q="3">Check</button><p class="fb" id="a-fb3" aria-live="polite"></p></div></li>
+        <li><p>If the pour kept going, when would <b>Cup B</b> reach the 64 oz rim?</p>
+          <div class="ans"><input id="a-q4" inputmode="decimal" aria-label="Time when Cup B reaches 64 ounces"><span class="unit">seconds</span><button class="btn alt sm" data-q="4">Check</button><p class="fb" id="a-fb4" aria-live="polite"></p></div></li>
+        <li><p>Compare your lines with the calculator's regression lines.</p>
+          <div class="ans"><button class="btn alt sm" id="a-showReg">Show regression lines</button><p class="fb" id="a-fb5" aria-live="polite"></p></div>
+          <div class="regbox" id="a-regBox" hidden></div></li>
+      </ol>
+    </div>
+  </section>
+
+  <details class="guide">
+    <summary>Teacher guide</summary>
+    <div class="guide-body">
+      <div>
+        <h3>Suggested flow</h3>
+        <ol>
+          <li>Project the page. Before pressing Start, ask: "Which cup will be fuller after 30 seconds? Will they ever be equal?"</li>
+          <li>Run the pour live with <b>Exact readings</b>. Students jot a few readings as they print.</li>
+          <li>Groups find each cup's rate and starting amount, write equations and test them with <b>Model it</b>. Then answer questions 1–4.</li>
+          <li>Switch to <b>Real sensor</b> and press <b>Pour again</b>. The points no longer fit a perfect line, so groups fit a line by eye.</li>
+          <li>Reveal the regression lines. Compare slopes, intercepts and <i>r</i> for the two cups, and with the exact run.</li>
+          <li>Move on to <b>Part B</b>, where the data is much messier.</li>
+        </ol>
+      </div>
+      <div>
+        <h3>Discussion questions</h3>
+        <ul>
+          <li>Where does the rate show up in the table? On the graph? In the equation?</li>
+          <li>Why does the starting amount mean ice, not soda?</li>
+          <li>Should the graph be a line or separate points? What happens between readings?</li>
+          <li>With real sensor data, why is <i>r</i> close to 1 but not equal to 1?</li>
+          <li>Would you trust the model to predict 3 minutes? What happens at the rim?</li>
+        </ul>
+        <p class="note" style="margin-top:8px">Standards: A-CED.2, F-IF.4, F-LE.5, A-REI.3, A-REI.6, A-REI.11, S-ID.6, S-ID.7, S-ID.8.</p>
+      </div>
+      <div>
+        <h3>Answer key for this order</h3>
+        <div class="key" id="a-key"></div>
+        <p class="note" style="margin-top:8px">For real sensor data, the key uses the regression lines. Answers within a reasonable range count as correct.</p>
+      </div>
+    </div>
+  </details>
+</div>
+
+
+</section>
+<section id="partB" role="tabpanel" aria-labelledby="tabB" hidden>
+
+
+<div class="page">
+  <header class="top">
+    <div class="intro">
+      <div class="eyebrow">Part B · Scatter plots, correlation &amp; regression</div>
+      <h2 class="ptitle">The Regulars</h2>
+      <p class="lede">The restaurant's loyalty app follows 60 members for one week, and together they make 150 visits. Watch the week play out in 30 seconds (about 4 seconds per day) as customers walk in and out the front door. Each walker's tag shows their age. Each dot on the graph is one member, placed at their <b>age</b>. Every time that member walks in, their dot moves up one <b>visit</b>. By Sunday night, do older customers come in more often, or less?</p>
+    </div>
+    <div class="ticket" aria-label="Data set">
+      <div><div class="k">Week #</div><div class="num" id="b-codeShow">----</div></div>
+      <form id="b-codeForm">
+        <input id="b-codeIn" maxlength="4" autocomplete="off" aria-label="Week number to load" placeholder="ABCD">
+        <button class="btn alt sm" type="submit">Load</button>
+        <button class="btn alt sm" type="button" id="b-newCode">New week</button>
+      </form>
+      <p class="hint">Everyone who loads the same week # gets the same customers.</p>
+    </div>
+  </header>
+
+  <section class="panel station">
+      <div class="scene" id="b-scene" aria-hidden="true">
+        <span class="dayflag" id="b-dayflag">Monday · morning</span>
+        <div class="bldg"><span class="sign">OPEN 7 DAYS</span><div class="awning"></div><div class="win l"></div><div class="door"></div><div class="win r"></div></div>
+        <div class="sidewalk"></div>
+        <div class="night" id="b-night"></div>
+      </div>
+      <div class="strip">
+        <div class="weekbox"><div class="week" id="b-week" aria-hidden="true"></div></div>
+        <div class="stats">
+        <div class="lc"><div class="h">Visits this week</div><div class="v" id="b-totV">0</div></div>
+        <div class="lc"><div class="h">Just walked in</div><div class="v" id="b-lastV">--</div></div>
+      </div>
+        <div class="ctrls">
+        <button class="btn" id="b-go">Start the week</button>
+        <button class="btn alt" id="b-skip">Skip to Sunday night</button>
+        <button class="btn alt" id="b-again">Replay week</button>
+      </div>
+      </div>
+  </section>
+
+  <section class="stage">
+    <div class="panel graph">
+      <div class="graph-head">
+        <h2>Visits this week vs. age</h2>
+        <div class="legend"><span><i class="sw"></i>Member</span><span><i class="sw ln"></i>Line you're typing</span><span><i class="sw rg"></i>Regression line</span></div>
+      </div>
+      <svg id="b-plot" viewBox="0 0 640 420" role="img" aria-label="Scatter plot of visits this week against member age"></svg>
+      <div class="ctrls"><button class="btn alt sm" type="button" id="b-resBtn" aria-pressed="false">Show residuals</button><p class="note" id="b-resNote">Residuals are the vertical distances from each point to the highlighted line.</p><p class="note">Orange dots just went up. Darker dots mean several members share a point.</p></div>
+    </div>
+
+    <div class="receipt">
+      <div class="rh"><b>LOYALTY APP LOG</b><span>WEEK #<span id="b-codeR">----</span></span></div>
+      <div class="tape" id="b-tape"><table><thead><tr><th>MEMBER</th><th>AGE</th><th>VISITS</th></tr></thead><tbody id="b-rows"></tbody></table></div>
+      <div class="rf" id="b-rfoot">Week not started</div>
+    </div>
+  </section>
+
+  <section class="panel lab-panel">
+    <div class="labcol">
+      <div>
+        <h2>Line of best fit lab</h2>
+        <p class="note" style="margin-top:4px">Try as many lines as you like. Tap a line to highlight it on the graph. Then add the regression line and see which of your lines comes closest.</p>
+      </div>
+      <form class="try" id="b-tryForm">
+        <div class="row">y = <input id="b-tm" inputmode="decimal" aria-label="Slope of the line to try" placeholder="slope"> x + <input id="b-tb" inputmode="decimal" aria-label="y-intercept of the line to try" placeholder="start"></div>
+        <div class="ans"><button class="btn sm" type="submit">Add this line</button><button class="btn alt sm" type="button" id="b-showReg">Add the regression line</button><p class="fb" id="b-fbTry" aria-live="polite"></p></div>
+        <p class="note">Tip: the slope here is small and negative, like −0.04. Try a few slopes and starting values and see which line looks like it runs through the middle of the cloud.</p>
+      </form>
+      <ul class="tried" id="b-tried"></ul>
+    </div>
+    <div class="labcol">
+      <h2>Questions</h2>
+      <ol class="qs">
+        <li><p>Describe the relationship between age and weekly visits.</p>
+          <div class="ans"><select id="b-q1" aria-label="Describe the relationship"><option value="">Choose one</option><option value="a">Strong positive</option><option value="b">Weak positive</option><option value="c">Strong negative</option><option value="r">Weak negative</option><option value="e">No relationship at all</option></select><button class="btn alt sm" data-q="1">Check</button><p class="fb" id="b-fb1" aria-live="polite"></p></div></li>
+        <li><p>Which value is closest to the correlation coefficient <i>r</i>?</p>
+          <div class="ans"><select id="b-q2" aria-label="Estimate of r"><option value="">Choose one</option><option value="-0.95">−0.95</option><option value="-0.4">−0.4</option><option value="0">0</option><option value="0.4">0.4</option><option value="0.95">0.95</option></select><button class="btn alt sm" data-q="2">Check</button><p class="fb" id="b-fb2" aria-live="polite"></p></div></li>
+        <li><p>Use the regression line. For every <b>10 years</b> older a member is, about how much do their weekly visits change?</p>
+          <div class="ans"><input id="b-q3" inputmode="decimal" aria-label="Change in visits per 10 years"><span class="unit">visits per week</span><button class="btn alt sm" data-q="3">Check</button><p class="fb" id="b-fb3" aria-live="polite"></p></div></li>
+        <li><p>Use the regression line to predict weekly visits for a <b>40-year-old</b> member.</p>
+          <div class="ans"><input id="b-q4" inputmode="decimal" aria-label="Predicted visits for a 40-year-old"><span class="unit">visits per week</span><button class="btn alt sm" data-q="4">Check</button><p class="fb" id="b-fb4" aria-live="polite"></p></div></li>
+        <li><p>A manager wants to use this line to predict exactly how often one specific 40-year-old will visit. Is that a good idea?</p>
+          <div class="ans"><select id="b-q5" aria-label="Should the manager use the line for one customer"><option value="">Choose one</option><option value="a">Yes, the line gives the exact number for any customer</option><option value="r">Not really. The correlation is weak, so individual customers vary a lot from the line</option><option value="c">No, because the slope is negative</option><option value="d">Yes, because r is close to −1</option></select><button class="btn alt sm" data-q="5">Check</button><p class="fb" id="b-fb5" aria-live="polite"></p></div></li>
+      </ol>
+    </div>
+  </section>
+
+  <details class="guide">
+    <summary>Teacher guide</summary>
+    <div class="guide-body">
+      <div>
+        <h3>Suggested flow</h3>
+        <ol>
+          <li>Before starting, ask: "Who do you think visits a fast-food place more often, younger or older customers? How sure are you?"</li>
+          <li>Start the week. Pause around Wednesday and ask students to describe the pattern so far, then predict Sunday's.</li>
+          <li>When the week ends, groups try at least three lines in the lab and pick the one they think fits best.</li>
+          <li>Add the regression line and compare it with each group's best line. Use <b>Show residuals</b> to talk about how far individual members are from the line.</li>
+          <li>Answer questions 1–5. Then load a new week and compare: is the pattern the same?</li>
+        </ol>
+      </div>
+      <div>
+        <h3>Discussion questions</h3>
+        <ul>
+          <li>How did the scatter plot change from Monday to Sunday? When could you first see the trend?</li>
+          <li>Why is it hard to agree on one line of best fit when the correlation is weak? What does r tell us about that?</li>
+          <li>What does the y-intercept mean here? Does a 0-year-old visit 5 times a week?</li>
+          <li>Does getting older <i>cause</i> fewer visits? What else could explain the pattern?</li>
+          <li>Would the model work for a 95-year-old? What about a 5-year-old?</li>
+        </ul>
+        <p class="note" style="margin-top:8px">Standards: S-ID.6, S-ID.7, S-ID.8, F-LE.5.</p>
+      </div>
+      <div>
+        <h3>Answer key for this week</h3>
+        <div class="key" id="b-key"></div>
+        <p class="note" style="margin-top:8px">Every week is built to have a weak negative correlation, with <i>r</i> between −0.25 and −0.55.</p>
+      </div>
+    </div>
+  </details>
+</div>
+
+
+</section>
+<script>
+(function(){
+  const want=/^#(b-|part-b)/i.test(location.hash||'')?'b':'a';
+  document.body.dataset.part=want;
+  function show(p){
+    document.body.dataset.part=p;
+    document.getElementById('partA').hidden=p!=='a';document.getElementById('partB').hidden=p!=='b';
+    document.querySelectorAll('.tab').forEach(t=>t.setAttribute('aria-selected',t.dataset.part===p));
+  }
+  show(want);
+  window.__show=p=>{show(p);(p==='a'?window.__hashA:window.__hashB)?.();window.scrollTo(0,0);};
+  document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>window.__show(t.dataset.part)));
+})();
+
+(function(){
+const ROOT=document.getElementById('partA');const $=id=>document.getElementById('a-'+id)||document.getElementById(id);
+const DUR=30, CAP=64, CH='BCDFGHJKLMNPQRSTVWXZ';
+const r1=v=>Math.round(v*10)/10;
+const f1=v=>(Math.round(v*10)/10).toFixed(1);
+const f2=v=>(Math.round(v*100)/100).toFixed(2);
+
+/* ---------- seeded data ---------- */
+function seedOf(s){let h=2166136261;for(const c of s){h^=c.charCodeAt(0);h=Math.imul(h,16777619);}return h>>>0;}
+function rng(seed){return ()=>{seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+const pick=(r,a)=>a[Math.floor(r()*a.length)];
+const newCode=()=>Array.from({length:4},()=>CH[Math.floor(Math.random()*CH.length)]).join('');
+function makeData(code,noisy){
+  const r=rng(seedOf(code));
+  let p={mA:1,bA:12,mB:1.5,bB:4,ts:16};
+  for(let i=0;i<300;i++){
+    const mA=pick(r,[0.9,1,1.1,1.2]),d=pick(r,[0.3,0.4,0.5,0.6]),ts=10+Math.floor(r()*11),bB=pick(r,[2,3,4,5]);
+    const bA=r1(bB+d*ts);
+    if(bA>=6&&bA<=16){p={mA,bA,mB:r1(mA+d),bB,ts};break;}
+  }
+  const nr=rng(seedOf(code+'-sensor')),A=[],B=[];
+  for(let t=0;t<=DUR;t++){
+    const na=noisy?nr()*0.8-0.4:0,nb=noisy?nr()*0.8-0.4:0;
+    A.push(r1(p.bA+p.mA*t+na));B.push(r1(p.bB+p.mB*t+nb));
+  }
+  return Object.assign(p,{A,B});
+}
+function reg(Y){
+  const n=Y.length;let sx=0,sy=0,sxx=0,sxy=0,syy=0;
+  Y.forEach((y,x)=>{sx+=x;sy+=y;sxx+=x*x;sxy+=x*y;syy+=y*y;});
+  const m=(n*sxy-sx*sy)/(n*sxx-sx*sx),b=(sy-m*sx)/n;
+  const den=Math.sqrt((n*sxx-sx*sx)*(n*syy-sy*sy));
+  return {m,b,r:den?(n*sxy-sx*sy)/den:1};
+}
+
+/* ---------- state ---------- */
+let code='',noisy=false,D=null,t=0,running=false,last=0,shown=-1,showReg=false,ice={A:[],B:[]};
+const done=()=>shown>=DUR;
+function truth(){
+  if(!noisy)return {mA:D.mA,bA:D.bA,mB:D.mB,bB:D.bB};
+  const a=reg(D.A),b=reg(D.B);return {mA:a.m,bA:a.b,mB:b.m,bB:b.b};
+}
+
+/* ---------- cups ---------- */
+const CUPY0=188,CUPH=156;
+const lvlY=v=>CUPY0-Math.max(0,Math.min(v,CAP+2))/CAP*CUPH;
+function iceCubes(start){
+  const n=Math.max(1,Math.round(start/2.6)),out=[];
+  for(let i=0;i<n;i++){const row=Math.floor(i/3),col=i%3;out.push({x:30+col*21+(row%2?8:0),y:CUPY0-20-row*15,rot:(i*37%30)-15});}
+  return out;
+}
+function drawCup(id,cls){
+  const k=id==='cupA'?'A':'B';
+  $(id).innerHTML=`<defs><clipPath id="clip${k}"><polygon points="14,32 106,32 96,188 24,188"/></clipPath></defs>
+   <rect class="nozzle" x="44" y="-26" width="32" height="14" rx="3"/><rect class="nozzle" x="54" y="-12" width="12" height="6"/>
+   <line id="stream${k}" x1="60" x2="60" y1="-6" y2="-6" stroke-width="7" stroke-linecap="round" class="${cls==='liq-a'?'sa':'sb'}" style="stroke:var(${cls==='liq-a'?'--cola':'--orange'})" visibility="hidden"/>
+   <polygon class="cup-back" points="14,32 106,32 96,188 24,188"/>
+   <g clip-path="url(#clip${k})"><rect id="liq${k}" class="${cls}" x="0" y="188" width="120" height="0"/>
+   <g id="ice${k}"></g></g>
+   <line class="rim" x1="10" x2="110" y1="${lvlY(CAP)}" y2="${lvlY(CAP)}"/><text class="rimtxt" x="108" y="${lvlY(CAP)-4}" text-anchor="end">64 oz</text>
+   <polygon class="cup-outline" points="10,30 110,30 98,190 22,190"/>`;
+}
+function setIce(){
+  ['A','B'].forEach(k=>{
+    ice[k]=iceCubes(D['b'+k]);
+    $('ice'+k).innerHTML=ice[k].map(c=>`<rect class="icecube" x="${c.x}" y="${c.y}" width="17" height="15" rx="3" transform="rotate(${c.rot} ${c.x+8.5} ${c.y+7.5})"/>`).join('');
+  });
+}
+function levelAt(Y,tt){const k=Math.min(Math.floor(tt),DUR-1),f=Math.min(tt-k,1);return Y[k]+(Y[k+1]-Y[k])*f;}
+function paintCups(){
+  ['A','B'].forEach(k=>{
+    const v=levelAt(D[k],t),y=lvlY(v);
+    $('liq'+k).setAttribute('y',y);$('liq'+k).setAttribute('height',CUPY0-y+2);
+    const s=$('stream'+k);s.setAttribute('y2',y);s.setAttribute('visibility',running?'visible':'hidden');
+    const shownV=shown>=0?D[k][shown]:D[k][0];
+    $('read'+k).innerHTML=`${f1(running||shown>=0?v:D[k][0])} <small>oz</small>`;
+  });
+  $('clock').textContent=f1(t)+' s';
+  $('barFill').style.width=(t/DUR*100)+'%';
+}
+
+/* ---------- graph ---------- */
+const GW=640,GH=400,ML=54,MR=18,MT=18,MB=48,XMAX=60;
+const GX=x=>ML+x/XMAX*(GW-ML-MR),GY=y=>MT+(1-y/CAP)*(GH-MT-MB);
+function num(id){const v=$(id).value.trim().replace(/[−–]/g,'-');if(v==='')return null;const n=Number(v);return isFinite(n)?n:null;}
+function lineSeg(m,b,cls){return `<line clip-path="url(#plotClip)" class="${cls}" x1="${GX(0)}" y1="${GY(b)}" x2="${GX(XMAX)}" y2="${GY(m*XMAX+b)}"/>`;}
+function drawPlot(){
+  let s=`<defs><clipPath id="plotClip"><rect x="${ML}" y="${MT}" width="${GW-ML-MR}" height="${GH-MT-MB}"/></clipPath></defs>`;
+  for(let x=0;x<=XMAX;x+=5)s+=`<line class="gl" x1="${GX(x)}" x2="${GX(x)}" y1="${GY(0)}" y2="${GY(CAP)}"/>`;
+  for(let y=0;y<=CAP;y+=8)s+=`<line class="gl" x1="${GX(0)}" x2="${GX(XMAX)}" y1="${GY(y)}" y2="${GY(y)}"/><text class="tk" x="${GX(0)-8}" y="${GY(y)+4}" text-anchor="end">${y}</text>`;
+  for(let x=0;x<=XMAX;x+=10)s+=`<text class="tk" x="${GX(x)}" y="${GY(0)+18}" text-anchor="middle">${x}</text>`;
+  s+=`<line class="ax" x1="${GX(0)}" x2="${GX(XMAX)}" y1="${GY(0)}" y2="${GY(0)}"/><line class="ax" x1="${GX(0)}" x2="${GX(0)}" y1="${GY(0)}" y2="${GY(CAP)}"/>`;
+  s+=`<line class="rimline" x1="${GX(0)}" x2="${GX(XMAX)}" y1="${GY(CAP)}" y2="${GY(CAP)}"/><text class="rimtxt" x="${GX(XMAX)-4}" y="${GY(CAP)+16}" text-anchor="end">Cup rim · 64 oz</text>`;
+  s+=`<text class="lab" x="${(GX(0)+GX(XMAX))/2}" y="${GH-8}" text-anchor="middle">Time (seconds)</text>`;
+  s+=`<text class="lab" transform="translate(16 ${(GY(0)+GY(CAP))/2}) rotate(-90)" text-anchor="middle">Ounces in cup</text>`;
+  if(showReg&&done()){const a=reg(D.A),b=reg(D.B);s+=lineSeg(a.m,a.b,'reg sa')+lineSeg(b.m,b.b,'reg sb');}
+  [['A','sa'],['B','sb']].forEach(([k,c])=>{const m=num('m'+k),b=num('b'+k);if(m!=null&&b!=null)s+=lineSeg(m,b,'user '+c);});
+  for(let i=0;i<=shown;i++){
+    s+=`<circle class="pa" cx="${GX(i)}" cy="${GY(D.A[i])}" r="4.5"/>`;
+    s+=`<rect class="pb" x="${GX(i)-4}" y="${GY(D.B[i])-4}" width="8" height="8"/>`;
+  }
+  s+=`<line id="nowLine" class="now" x1="${GX(t)}" x2="${GX(t)}" y1="${GY(0)}" y2="${GY(CAP)}" visibility="${running?'visible':'hidden'}"/>`;
+  $('plot').innerHTML=s;
+}
+function moveNow(){const n=$('nowLine');if(n){n.setAttribute('x1',GX(t));n.setAttribute('x2',GX(t));n.setAttribute('visibility',running?'visible':'hidden');}}
+
+/* ---------- receipt tape ---------- */
+function addRows(to){
+  const body=$('rows');
+  body.querySelectorAll('tr.new').forEach(r=>r.classList.remove('new'));
+  let h='';
+  for(let i=shown+1;i<=to;i++)h+=`<tr${i===to?' class="new"':''}><td>${i}</td><td class="a">${f1(D.A[i])}</td><td class="b">${f1(D.B[i])}</td></tr>`;
+  body.insertAdjacentHTML('beforeend',h);
+  shown=to;
+  $('emptyTape').hidden=shown>=0;
+  $('rfoot').textContent=`${shown+1} of 31 readings${done()?' · POUR COMPLETE':''}`;
+  const tape=$('tape');tape.scrollTop=tape.scrollHeight;
+  drawPlot();
+}
+
+/* ---------- run loop ---------- */
+function frame(now){
+  if(!running)return;
+  t=Math.min(DUR,t+(now-last)/1000);last=now;
+  const k=Math.floor(t+1e-9);if(k>shown)addRows(k);
+  if(t>=DUR){running=false;addRows(DUR);}
+  paintCups();moveNow();setGo();
+  if(running)requestAnimationFrame(frame);
+}
+function setGo(){
+  const g=$('go');
+  if(done()){g.textContent='Pour complete';g.disabled=true;}
+  else{g.disabled=false;g.textContent=running?'Pause':(t>0?'Resume':'Start the pour');}
+  $('skip').disabled=done();
+}
+$('go').onclick=()=>{
+  if(done())return;
+  if(running){running=false;paintCups();moveNow();setGo();return;}
+  running=true;last=performance.now();if(shown<0)addRows(0);setGo();requestAnimationFrame(frame);
+};
+$('skip').onclick=()=>{running=false;t=DUR;addRows(DUR);paintCups();moveNow();setGo();};
+$('again').onclick=()=>reset();
+
+/* ---------- loading data ---------- */
+function setHash(){if(document.body.dataset.part!=='a')return;const h='a-'+code+(noisy?'-sensor':'');try{history.replaceState(null,'','#'+h);}catch(e){try{location.hash=h;}catch(e2){}}}
+window.__hashA=setHash;
+function reset(){
+  running=false;t=0;shown=-1;showReg=false;
+  D=makeData(code,noisy);
+  $('codeShow').textContent=code;$('codeR').textContent=code+(noisy?' · SENSOR':'');
+  $('rows').innerHTML='';$('emptyTape').hidden=false;$('rfoot').textContent='0 of 31 readings';
+  ['fbLines','fb1','fb2','fb3','fb4','fb5'].forEach(id=>{$(id).textContent='';$(id).className='fb';});
+  $('regBox').hidden=true;$('showReg').textContent='Show regression lines';
+  setIce();paintCups();drawPlot();setGo();renderKey();setHash();
+}
+function load(c,n){code=c;noisy=n;$(n?'modeNoisy':'modeExact').checked=true;reset();}
+$('newCode').onclick=()=>load(newCode(),noisy);
+$('codeForm').addEventListener('submit',e=>{
+  e.preventDefault();
+  const c=$('codeIn').value.toUpperCase().replace(/[^A-Z]/g,'');
+  if(c.length!==4){$('codeIn').setCustomValidity('Order numbers are 4 letters.');$('codeIn').reportValidity();return;}
+  $('codeIn').setCustomValidity('');$('codeIn').value='';load(c,noisy);
+});
+$('codeIn').addEventListener('input',()=>$('codeIn').setCustomValidity(''));
+document.querySelectorAll('input[name=mode]').forEach(r=>r.addEventListener('change',()=>{noisy=$('modeNoisy').checked;reset();}));
+['mA','bA','mB','bB'].forEach(id=>$(id).addEventListener('input',drawPlot));
+
+/* ---------- checking ---------- */
+function fb(id,ok,msg){const e=$(id);e.className='fb '+(ok?'ok':'no');e.textContent=msg;}
+function needDone(id){if(done())return false;fb(id,false,'Finish the pour first (or press Skip to 30 s), then check.');return true;}
+$('chkLines').onclick=()=>{
+  if(needDone('fbLines'))return;
+  const T=truth(),tm=noisy?0.12:0.051,tb=noisy?1.2:0.31,msgs=[];let all=true;
+  [['A','Cup A'],['B','Cup B']].forEach(([k,nm])=>{
+    const m=num('m'+k),b=num('b'+k);
+    if(m==null||b==null){msgs.push(`${nm}: fill in both boxes.`);all=false;return;}
+    const om=Math.abs(m-T['m'+k])<=tm,ob=Math.abs(b-T['b'+k])<=tb;
+    if(om&&ob)msgs.push(`${nm}: fits the data.`);
+    else{all=false;msgs.push(`${nm}: ${!om&&!ob?'check the rate and the starting amount':!om?'the starting amount is close; check the rate':'the rate is close; check the starting amount'}.`);}
+  });
+  fb('fbLines',all,msgs.join(' '));
+};
+ROOT.querySelectorAll('[data-q]').forEach(b=>b.onclick=()=>{
+  const q=b.dataset.q,id='fb'+q;
+  if(q==='2'){
+    const v=$('q2').value;if(!v)return fb(id,false,'Choose an answer.');
+    return v==='r'?fb(id,true,'Yes. At 0 seconds no cola has poured yet, so the sensor is reading the ice.'):fb(id,false,'Not yet. Think about what is in the cup before the fountain turns on.');
+  }
+  if(needDone(id))return;
+  const v=num('q'+q);if(v==null)return fb(id,false,'Type a number.');
+  const T=truth();
+  if(q==='1'){const tol=noisy?0.12:0.051;return Math.abs(v-T.mB)<=tol?fb(id,true,`Yes. Cup B gains about ${noisy?f2(T.mB):f1(T.mB)} oz every second.`):fb(id,false,'Not yet. Pick two readings far apart and divide the change in ounces by the change in seconds.');}
+  if(q==='3'){const x=(T.bA-T.bB)/(T.mB-T.mA),tol=noisy?1.5:0.6;return Math.abs(v-x)<=tol?fb(id,true,`Yes. The lines cross at about ${f1(x)} s, when both cups hold about ${f1(T.mA*x+T.bA)} oz.`):fb(id,false,'Not yet. Look for where the two sets of points cross, or set your two equations equal.');}
+  if(q==='4'){const x=(CAP-T.bB)/T.mB,tol=noisy?2:0.6;return Math.abs(v-x)<=tol?fb(id,true,`Yes. Cup B would reach 64 oz at about ${f1(x)} s. That's past the 30 seconds of data, so it's a prediction.`):fb(id,false,'Not yet. Solve 64 = (rate)·t + (starting amount) for Cup B. The answer is past 30 seconds.');}
+});
+$('showReg').onclick=()=>{
+  if(needDone('fb5'))return;
+  showReg=!showReg;$('showReg').textContent=showReg?'Hide regression lines':'Show regression lines';
+  const a=reg(D.A),b=reg(D.B),box=$('regBox');
+  box.hidden=!showReg;
+  box.innerHTML=`<div class="r a">Cup A: y = ${f2(a.m)}x + ${f2(a.b)} &nbsp; r = ${a.r.toFixed(4)}</div>
+   <div class="r b">Cup B: y = ${f2(b.m)}x + ${f2(b.b)} &nbsp; r = ${b.r.toFixed(4)}</div>
+   <ul><li>Which cup fills faster? Which slope shows it?</li><li>Which cup started with more ice? Which number shows it?</li>
+   <li>${noisy?'Both r values are close to 1 but not exactly 1. Why?':'Both r values are 1. What does that say about the data? Try the Real sensor mode.'}</li>
+   <li>How close were your lines to the regression lines?</li></ul>`;
+  drawPlot();
+};
+
+/* ---------- answer key ---------- */
+function renderKey(){
+  const T=truth(),x=(T.bA-T.bB)/(T.mB-T.mA);
+  const eq=(m,b)=>noisy?`y ≈ ${f2(m)}x + ${f2(b)}`:`y = ${f1(m)}x + ${f1(b)}`;
+  $('key').innerHTML=`Order #${code}${noisy?' (real sensor)':' (exact)'}<br>
+   Cup A: ${eq(T.mA,T.bA)}<br>Cup B: ${eq(T.mB,T.bB)}<br>
+   Q1 · Cup B rate: ${noisy?f2(T.mB):f1(T.mB)} oz/s<br>
+   Q2 · The ice in Cup A before the pour<br>
+   Q3 · Equal at ${f1(x)} s (${f1(T.mA*x+T.bA)} oz)<br>
+   Q4 · Cup B reaches 64 oz at ${f1((CAP-T.bB)/T.mB)} s<br>
+   Cup A would reach 64 oz at ${f1((CAP-T.bA)/T.mA)} s`;
+}
+
+/* ---------- start ---------- */
+drawCup('cupA','liq-a');drawCup('cupB','liq-b');
+let start=null;
+try{const m=(location.hash||'').match(/^#a-([A-Za-z]{4})(-sensor)?$/);if(m)start={c:m[1].toUpperCase(),n:!!m[2]};}catch(e){}
+if(start)load(start.c,start.n);else load(newCode(),false);
+})();
+
+
+(function(){
+const ROOT=document.getElementById('partB');const $=id=>document.getElementById('b-'+id)||document.getElementById(id);
+const DUR=30,XMIN=10,XMAX=80,YMAX=8,N=60,TOTAL=150,CH='BCDFGHJKLMNPQRSTVWXZ';
+const DAYS=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+const f1=v=>(Math.round(v*10)/10).toFixed(1),f2=v=>(Math.round(v*100)/100).toFixed(2),f3=v=>(Math.round(v*1000)/1000).toFixed(3);
+const sgn=v=>(v<0?'−':'')+Math.abs(v);
+const COLORS=['--c1','--c2','--c3','--c4','--c5','--c6'];
+const NAMES='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+const SKIN=['#f1c9a5','#e0ac7e','#c68954','#8d5524','#5c3a1e'],SHIRT=['#2364aa','#2a8a4a','#c4302a','#7b3fa0','#0f8b8d','#e0a21b','#444b55'],HAIR=['#2b1d14','#4a2f1b','#8a5a2b','#d1a54a','#1a1a1a'];
+const reduce=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------- seeded data ---------- */
+function seedOf(s){let h=2166136261;for(const c of s){h^=c.charCodeAt(0);h=Math.imul(h,16777619);}return h>>>0;}
+function rng(seed){return ()=>{seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+const pick=(r,a)=>a[Math.floor(r()*a.length)];
+const newCode=()=>Array.from({length:4},()=>CH[Math.floor(Math.random()*CH.length)]).join('');
+function reg(pts){
+  const n=pts.length;let sx=0,sy=0,sxx=0,sxy=0,syy=0;
+  pts.forEach(([x,y])=>{sx+=x;sy+=y;sxx+=x*x;sxy+=x*y;syy+=y*y;});
+  const dx=n*sxx-sx*sx,m=dx?(n*sxy-sx*sy)/dx:0,b=n?(sy-m*sx)/n:0,den=Math.sqrt(dx*(n*syy-sy*sy));
+  return {m,b,r:den?(n*sxy-sx*sy)/den:0};
+}
+function makeData(code){
+  const r=rng(seedOf(code));
+  const z=()=>{let u=0;while(!u)u=r();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*r());};
+  let out=null;
+  for(let k=0;k<80;k++){
+    const m=-pick(r,[0.03,0.035,0.04,0.045,0.05]),b=pick(r,[4.5,5,5.5]),cust=[];
+    for(let i=0;i<N;i++){
+      const age=13+Math.floor(Math.pow(r(),1.15)*60);
+      const v=Math.min(7,Math.max(0,Math.round(b+m*age+z()*1.35)));
+      cust.push({n:i+1,age,v});
+    }
+    let tot=cust.reduce((a,c)=>a+c.v,0),guard=0;
+    while(tot!==TOTAL&&guard++<5000){const c=cust[Math.floor(r()*N)];if(tot>TOTAL&&c.v>0){c.v--;tot--;}else if(tot<TOTAL&&c.v<7){c.v++;tot++;}}
+    const q=reg(cust.map(c=>[c.age,c.v]));
+    out={m,b,cust};
+    if(q.r<=-0.25&&q.r>=-0.55)break;
+  }
+  /* look + visit schedule */
+  const s=rng(seedOf(code+'-week')),ev=[];
+  out.cust.forEach((c,i)=>{
+    c.skin=pick(s,SKIN);c.shirt=pick(s,SHIRT);c.hair=c.age>=58?'#c9c9c9':pick(s,HAIR);c.cur=0;
+    const days=[0,1,2,3,4,5,6].sort(()=>s()-0.5).slice(0,c.v);
+    days.forEach(d=>{const tod=0.12+s()*0.78;ev.push({t:(d+tod)/7*DUR,i,fromR:s()<0.5});});
+  });
+  ev.sort((a,b)=>a.t-b.t);
+  out.ev=ev;
+  return out;
+}
+
+/* ---------- state ---------- */
+let resOn=false,code='',D=null,t=0,running=false,last=0,ei=0,lines=[],sel=null,nextName=0,regAdded=false,fresh=new Map();
+const done=()=>D&&ei>=D.ev.length&&t>=DUR;
+const pts=()=>D.cust.map(c=>[c.age,c.cur]);
+const full=()=>D.cust.map(c=>[c.age,c.v]);
+function misses(m,b,P){let sse=0,abs=0;P.forEach(([x,y])=>{const e=y-(m*x+b);sse+=e*e;abs+=Math.abs(e);});return {sse,avg:P.length?abs/P.length:0};}
+
+/* ---------- graph ---------- */
+const GW=640,GH=420,ML=50,MR=18,MT=18,MB=48;
+const GX=x=>ML+(x-XMIN)/(XMAX-XMIN)*(GW-ML-MR),GY=y=>MT+(1-y/YMAX)*(GH-MT-MB);
+function num(id){const v=$(id).value.trim().replace(/[−–]/g,'-');if(v==='')return null;const n=Number(v);return isFinite(n)?n:null;}
+const seg=(m,b,cls,col)=>`<line clip-path="url(#pc)" class="${cls}"${col?` style="stroke:var(${col})"`:''} x1="${GX(XMIN)}" y1="${GY(m*XMIN+b)}" x2="${GX(XMAX)}" y2="${GY(m*XMAX+b)}"/>`;
+function drawPlot(){
+  let s=`<defs><clipPath id="pc"><rect x="${ML}" y="${MT}" width="${GW-ML-MR}" height="${GH-MT-MB}"/></clipPath></defs>`;
+  for(let x=XMIN;x<=XMAX;x+=5)s+=`<line class="gl" x1="${GX(x)}" x2="${GX(x)}" y1="${GY(0)}" y2="${GY(YMAX)}"/>`;
+  for(let x=XMIN;x<=XMAX;x+=10)s+=`<text class="tk" x="${GX(x)}" y="${GY(0)+18}" text-anchor="middle">${x}</text>`;
+  for(let y=0;y<=YMAX;y++)s+=`<line class="gl" x1="${GX(XMIN)}" x2="${GX(XMAX)}" y1="${GY(y)}" y2="${GY(y)}"/><text class="tk" x="${GX(XMIN)-8}" y="${GY(y)+4}" text-anchor="end">${y}</text>`;
+  s+=`<line class="ax" x1="${GX(XMIN)}" x2="${GX(XMAX)}" y1="${GY(0)}" y2="${GY(0)}"/><line class="ax" x1="${GX(XMIN)}" x2="${GX(XMIN)}" y1="${GY(0)}" y2="${GY(YMAX)}"/>`;
+  s+=`<text class="lab" x="${(GX(XMIN)+GX(XMAX))/2}" y="${GH-8}" text-anchor="middle">Member age (years)</text>`;
+  s+=`<text class="lab" transform="translate(14 ${(GY(0)+GY(YMAX))/2}) rotate(-90)" text-anchor="middle">Visits this week</text>`;
+  const S=lines.find(l=>l.id===sel);
+  if(S&&resOn){const col=S.reg?'--red':S.col;pts().forEach(([x,y])=>{s+=`<line class="res" style="stroke:var(${col})" x1="${GX(x)}" x2="${GX(x)}" y1="${GY(y)}" y2="${GY(S.m*x+S.b)}"/>`;});}
+  lines.forEach(l=>{s+=seg(l.m,l.b,'tl'+(l.id===sel?' sel':'')+(l.reg?' reg':''),l.reg?null:l.col);});
+  const m=num('tm'),b=num('tb');if(m!=null&&b!=null)s+=seg(m,b,'prev');
+  const now=performance.now();
+  D.cust.forEach((c,i)=>{const f=running&&fresh.has(i)&&now-fresh.get(i)<900;s+=`<circle class="pt${f?' fresh':''}" cx="${GX(c.age)}" cy="${GY(c.cur)}" r="${f?6.5:5.5}"/>`;});
+  $('plot').innerHTML=s;
+}
+
+/* ---------- tried lines ---------- */
+function renderLines(){
+  const ul=$('tried'),closest=closestId();
+  if(!lines.length){ul.innerHTML=`<li class="emptyl">No lines yet. Type a slope and a starting value, then press <b>Add this line</b>.</li>`;return;}
+  const R=done()?reg(full()):null;
+  ul.innerHTML=lines.map(l=>`<li class="${l.id===sel?'sel':''}"><button type="button" class="pick" data-sel="${l.id}" aria-pressed="${l.id===sel}">
+     <span class="nm" style="color:var(${l.reg?'--red':l.col})"><i></i>${l.reg?'Regression':'Line '+l.name}</span>
+     <span class="eqt">y = ${l.reg?sgn(+f3(l.m)):sgn(l.m)}x + ${l.reg?sgn(+f2(l.b)):sgn(l.b)}</span>
+     ${l.reg&&R?`<span class="met">r = ${sgn(+f2(R.r))}</span>`:''}
+     ${l.id===closest?'<span class="best">Closest to the regression line</span>':''}</button>
+     <button type="button" class="x" data-rm="${l.id}" aria-label="Remove ${l.reg?'regression line':'line '+l.name}">×</button></li>`).join('');
+}
+$('tryForm').addEventListener('submit',e=>{
+  e.preventDefault();
+  const m=num('tm'),b=num('tb');
+  if(m==null||b==null){fbm('fbTry',false,'Type a number in both boxes.');return;}
+  if(lines.filter(l=>!l.reg).length>=8){fbm('fbTry',false,'You can keep 8 lines at a time. Remove one with × to add another.');return;}
+  const id='L'+(++nextName),used=new Set(lines.map(l=>l.col));
+  const col=COLORS.find(c=>!used.has(c))||COLORS[nextName%COLORS.length];
+  lines.push({id,name:NAMES[(nextName-1)%26],m,b,col});sel=id;
+  $('tm').value='';$('tb').value='';$('fbTry').textContent='';
+  compareFb();renderLines();drawPlot();$('tm').focus();
+});
+$('showReg').onclick=()=>{
+  if(!done()){fbm('fbTry',false,'Let the week finish (or press Skip to Sunday night) first.');return;}
+  if(!regAdded){const q=reg(full());lines.push({id:'REG',reg:true,m:q.m,b:q.b});regAdded=true;}
+  sel='REG';$('showReg').disabled=true;compareFb();renderLines();drawPlot();
+};
+$('tried').addEventListener('click',e=>{
+  const rm=e.target.closest('[data-rm]');
+  if(rm){lines=lines.filter(l=>l.id!==rm.dataset.rm);if(rm.dataset.rm==='REG'){regAdded=false;$('showReg').disabled=false;}if(sel===rm.dataset.rm)sel=null;renderLines();drawPlot();return;}
+  const p=e.target.closest('[data-sel]');if(p){sel=sel===p.dataset.sel?null:p.dataset.sel;renderLines();drawPlot();}
+});
+function gap(l,q){let s=0,k=0;for(let x=13;x<=72;x++){s+=Math.abs((l.m*x+l.b)-(q.m*x+q.b));k++;}return s/k;}
+function closestId(){const q=lines.find(l=>l.reg),st=lines.filter(l=>!l.reg);if(!q||!st.length)return null;return st.reduce((a,b)=>gap(b,q)<gap(a,q)?b:a).id;}
+function compareFb(){
+  if(!regAdded||!done())return;
+  const q=lines.find(l=>l.reg),R=reg(full()),st=lines.filter(l=>!l.reg);
+  if(!st.length){fbm('fbTry',true,`The regression line is y = ${sgn(+f3(q.m))}x + ${f2(q.b)}, with r = ${sgn(+f2(R.r))}.`);return;}
+  const c=lines.find(l=>l.id===closestId()),g=gap(c,q);
+  fbm('fbTry',g<0.3,`Line ${c.name} is closest to the regression line. Compare its slope (${sgn(c.m)}) and y-intercept (${sgn(c.b)}) with the regression line's (${sgn(+f3(q.m))} and ${f2(q.b)}).${g<0.3?' Very close!':' Try another line to get closer.'}`);
+}
+['tm','tb'].forEach(id=>$(id).addEventListener('input',drawPlot));
+$('resBtn').onclick=()=>{resOn=!resOn;$('resBtn').setAttribute('aria-pressed',resOn);$('resBtn').textContent=resOn?'Hide residuals':'Show residuals';
+  $('resNote').textContent=resOn&&!lines.find(l=>l.id===sel)?'Tap a line in the lab to see its residuals.':'Residuals are the vertical distances from each point to the highlighted line.';drawPlot();};
+
+/* ---------- people ---------- */
+function personSVG(c){
+  return `<svg viewBox="0 0 26 46"><rect class="leg" x="8" y="30" width="4.5" height="15" rx="2" fill="#3b3f46"/><rect class="leg b" x="13.5" y="30" width="4.5" height="15" rx="2" fill="#3b3f46"/>
+   <rect x="5" y="15" width="16" height="17" rx="5" fill="${c.shirt}"/><circle cx="13" cy="9" r="7" fill="${c.skin}"/>
+   <path d="M6 8 a7 7 0 0 1 14 0 q-3-3-7-2.5 q-4-.5-7 2.5z" fill="${c.hair}"/><circle cx="16" cy="9" r="1" fill="#222"/></svg>`;
+}
+function spawn(e){
+  if(reduce())return;
+  const scene=$('scene');if(scene.querySelectorAll('.person').length>28)return;
+  const c=D.cust[e.i],el=document.createElement('div');
+  el.className='person'+(e.fromR?' fromR':'');
+  el.innerHTML=`<span class="age">${c.age}</span>`+personSVG(c);
+  el.addEventListener('animationend',ev=>{if(ev.target===el)el.remove();});
+  scene.appendChild(el);
+}
+
+/* ---------- tape ---------- */
+function buildRows(){$('rows').innerHTML=D.cust.map((c,i)=>`<tr id="r${i}"><td>${c.n}</td><td>${c.age}</td><td class="s" id="v${i}">0</td></tr>`).join('');}
+function bump(e,animate){
+  const c=D.cust[e.i];c.cur++;
+  $('v'+e.i).textContent=c.cur;
+  if(animate){const row=$('r'+e.i);row.classList.add('new');setTimeout(()=>row.classList.remove('new'),700);fresh.set(e.i,performance.now());spawn(e);
+    $('lastV').textContent=`Age ${c.age} · visit #${c.cur}`;}
+}
+function totals(){const tot=D.cust.reduce((a,c)=>a+c.cur,0);$('totV').textContent=tot;$('rfoot').textContent=done()?`WEEK OVER · ${tot} VISITS`:(t>0?`${tot} visits so far`:'Week not started');}
+function paintWeek(){
+  const d=Math.min(6,Math.floor(t/DUR*7)),frac=t>=DUR?1:(t/DUR*7)-d;
+  const part=frac<0.33?'morning':frac<0.66?'afternoon':'evening';
+  $('dayflag').textContent=t>=DUR?'Sunday · closed for the night':`${DAYS[d]} · ${part}`;
+  $('night').style.opacity=t>=DUR?0.45:Math.max(0,(frac-0.62)/0.38)*0.5;
+  $('week').querySelectorAll('span').forEach((s,i)=>{const w=t>=DUR||i<d?100:i===d?frac*100:0;s.querySelector('i').style.width=w+'%';s.classList.toggle('now',i===d&&t<DUR&&t>0);});
+}
+function frame(now){
+  if(!running)return;
+  t=Math.min(DUR,t+(now-last)/1000);last=now;
+  let any=false;
+  while(ei<D.ev.length&&D.ev[ei].t<=t){bump(D.ev[ei],true);ei++;any=true;}
+  if(t>=DUR)running=false;
+  paintWeek();totals();if(any||fresh.size)drawPlot();
+  if(any)renderLines();
+  if(!running){fresh.clear();drawPlot();renderLines();compareFb();}
+  setGo();
+  if(running)requestAnimationFrame(frame);
+}
+function setGo(){
+  const g=$('go');
+  if(done()){g.textContent='Week over';g.disabled=true;}
+  else{g.disabled=false;g.textContent=running?'Pause':(t>0?'Resume':'Start the week');}
+  $('skip').disabled=done();
+}
+$('go').onclick=()=>{
+  if(done())return;
+  if(running){running=false;setGo();return;}
+  if(t===0){try{ROOT.querySelector('.station').scrollIntoView({block:'start',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});}catch(e){}}
+  running=true;last=performance.now();setGo();requestAnimationFrame(frame);
+};
+$('skip').onclick=()=>{
+  running=false;while(ei<D.ev.length){bump(D.ev[ei],false);ei++;}
+  t=DUR;fresh.clear();$('lastV').textContent='--';
+  paintWeek();totals();drawPlot();renderLines();compareFb();setGo();
+};
+$('again').onclick=()=>reset(true);
+
+/* ---------- loading ---------- */
+function setHash(){if(document.body.dataset.part!=='b')return;const h='b-'+code;try{history.replaceState(null,'','#'+h);}catch(e){try{location.hash=h;}catch(e2){}}}
+window.__hashB=setHash;
+function reset(keepLines){
+  running=false;t=0;ei=0;fresh.clear();
+  D=makeData(code);
+  if(!keepLines){lines=[];sel=null;nextName=0;}
+  lines=lines.filter(l=>!l.reg);regAdded=false;$('showReg').disabled=false;if(sel==='REG')sel=null;
+  $('codeShow').textContent=code;$('codeR').textContent=code;
+  $('lastV').textContent='--';
+  document.querySelectorAll('.person').forEach(e=>e.remove());
+  ['fbTry','fb1','fb2','fb3','fb4','fb5'].forEach(id=>{$(id).textContent='';$(id).className='fb';});
+  buildRows();paintWeek();totals();renderLines();drawPlot();setGo();renderKey();setHash();
+}
+function load(c){code=c;reset(false);}
+$('week').innerHTML=DAYS.map(d=>`<span><i></i><b>${d.slice(0,3)}</b></span>`).join('');
+$('newCode').onclick=()=>load(newCode());
+$('codeForm').addEventListener('submit',e=>{
+  e.preventDefault();
+  const c=$('codeIn').value.toUpperCase().replace(/[^A-Z]/g,'');
+  if(c.length!==4){$('codeIn').setCustomValidity('Week numbers are 4 letters.');$('codeIn').reportValidity();return;}
+  $('codeIn').setCustomValidity('');$('codeIn').value='';load(c);
+});
+$('codeIn').addEventListener('input',()=>$('codeIn').setCustomValidity(''));
+
+/* ---------- questions ---------- */
+function fbm(id,ok,msg){const e=$(id);e.className='fb '+(ok?'ok':'no');e.textContent=msg;}
+function needDone(id){if(done())return false;fbm(id,false,'Let the week finish (or press Skip to Sunday night), then check.');return true;}
+ROOT.querySelectorAll('[data-q]').forEach(b=>b.onclick=()=>{
+  const q=b.dataset.q,id='fb'+q;
+  if(needDone(id))return;
+  const R=reg(full());
+  if(q==='1'){const v=$('q1').value;if(!v)return fbm(id,false,'Choose an answer.');
+    return v==='r'?fbm(id,true,`Yes. Older members tend to visit a little less, but the points are widely scattered (r = ${f2(R.r)}).`):fbm(id,false,'Not yet. Does the cloud tilt up or down from left to right? How tightly do the points follow that tilt?');}
+  if(q==='2'){const v=$('q2').value;if(!v)return fbm(id,false,'Choose an answer.');
+    return v==='-0.4'?fbm(id,true,`Yes. The actual value is r = ${f2(R.r)}: negative, and much closer to 0 than to −1.`):fbm(id,false,'Not yet. The sign of r matches the direction. A value near ±1 means the points hug a line tightly.');}
+  if(q==='5'){const v=$('q5').value;if(!v)return fbm(id,false,'Choose an answer.');
+    return v==='r'?fbm(id,true,'Yes. The line describes the overall trend. With a weak correlation, a single customer can be far above or below it.'):fbm(id,false,'Not yet. Look at how far the points sit from the regression line at age 40.');}
+  const v=num('q'+q);if(v==null)return fbm(id,false,'Type a number.');
+  if(q==='3'){const a=R.m*10;return Math.abs(v-a)<=0.12?fbm(id,true,`Yes. The slope is ${f3(R.m)} visits per year, so 10 years goes with about ${f2(a)} visits per week.`):fbm(id,false,Math.abs(-v-a)<=0.12?'Close. Check the sign: do visits go up or down as age goes up?':'Not yet. Multiply the regression slope by 10. Add the regression line in the lab to see its slope.');}
+  if(q==='4'){const a=R.m*40+R.b;return Math.abs(v-a)<=0.2?fbm(id,true,`Yes. The regression line predicts about ${f1(a)} visits per week for a 40-year-old.`):fbm(id,false,'Not yet. Substitute x = 40 into the regression equation.');}
+});
+
+/* ---------- answer key ---------- */
+function renderKey(){
+  const R=reg(full());
+  $('key').innerHTML=`Week #${code}<br>Regression: y = ${f3(R.m)}x + ${f2(R.b)}<br>r = ${f3(R.r)}<br>
+   Total visits: ${full().reduce((a,p)=>a+p[1],0)}<br>
+   Q1 · Weak negative<br>Q2 · −0.4<br>Q3 · About ${f2(R.m*10)} visits per week<br>
+   Q4 · About ${f1(R.m*40+R.b)} visits per week<br>Q5 · Not really (weak correlation)`;
+}
+
+/* ---------- start ---------- */
+let start=null;
+try{const m=(location.hash||'').match(/^#b-([A-Za-z]{4})$/);if(m)start=m[1].toUpperCase();}catch(e){}
+load(start||newCode());
+})();
+
+</script>
