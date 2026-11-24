@@ -368,6 +368,8 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 #partB .scene{height:clamp(96px,15vh,190px)}
 #partB .ptitle{font-size:clamp(24px,2.6vw,34px)}
 #partB .legend{gap:4px 12px}
+#partB .titlerow{display:flex;flex-wrap:wrap;align-items:center;gap:6px 16px}
+#partB .subhead{margin:0;font-family:var(--f-body);font-weight:700;font-size:clamp(17px,1.8vw,22px);line-height:1.2;color:var(--ink);background:var(--grid);border-radius:8px;padding:4px 12px}
 
 /* ===== BRHS brand (from the "Design System" template): Carolina Blue, Clemson Orange, Determined Gray on white.
    Display: KG Summer Sunshine · Buttons & subheads: Poppins 700, .05em · Body: Arial · Data: Monaco ===== */
@@ -423,6 +425,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 #partB .tried li.sel{border-color:var(--blue)}
 #partA .tape tr.new td,#partB .tape tr.new td{background:var(--orange-soft)}
 #partB #b-plot .pt{fill-opacity:.6}
+#partB .subhead{font-family:var(--f-ui);letter-spacing:.03em;color:var(--blue-ink);background:var(--blue-soft);border:2px solid var(--blue);border-radius:10px}
 #partB .tried .nm[style*="--red"]{color:var(--ink)!important}
 #partA .ticket .num,#partB .ticket .num,#partA .clock .t,#partB .sign,.tab b,#partA .tried .nm{font-family:var(--f-ui)!important;font-weight:700}
 #partA .ticket .num,#partB .ticket .num{font-size:22px;letter-spacing:.12em}
@@ -570,8 +573,8 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
   <header class="top">
     <div class="intro">
       <div class="eyebrow">Part B · Scatter plots, correlation &amp; regression</div>
-      <h2 class="ptitle">The Regulars</h2>
-      <p class="lede">60 loyalty members, one month, played in 20 seconds. Each dot is a member at their <b>age</b> and rises one <b>visit</b> every time they walk in. Do older customers come in more often, or less?</p>
+      <div class="titlerow"><h2 class="ptitle">The Regulars</h2><p class="subhead">Age and number of visits a month</p></div>
+      <p class="lede">60 loyalty members over one month. Do older customers come in more often, or less?</p>
     </div>
     <div class="ticket" aria-label="Data set">
       <div><div class="k">Month #</div><div class="num" id="b-codeShow">----</div></div>
@@ -1188,7 +1191,7 @@ function fit(){
   if(!st||!st.getClientRects().length)return;
   if(innerWidth<=1000){st.style.height='';st.classList.remove('fitted');if(typeof onFit==='function')onFit();return;}
   const top=st.getBoundingClientRect().top+scrollY;
-  st.style.height=Math.max(260,Math.floor(innerHeight-top-12))+'px';st.classList.add('fitted');
+  st.style.height=Math.max(240,Math.floor(innerHeight-top-12))+'px';st.classList.add('fitted');
   if(typeof onFit==='function')onFit();
 }
 function onFit(){const pl=$('plot'),w=pl.clientWidth,h=pl.clientHeight;GH=(w&&h&&pl.closest('.fitted'))?Math.round(Math.min(560,Math.max(190,GW*h/w))):420;drawPlot();}
